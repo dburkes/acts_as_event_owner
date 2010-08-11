@@ -1,7 +1,8 @@
-require File.join(File.dirname(__FILE__), 'acts_as_event_owner/version')
-require File.join(File.dirname(__FILE__), 'acts_as_event_owner/event_specification')
-require File.join(File.dirname(__FILE__), 'acts_as_event_owner/event_occurrence')
-require File.join(File.dirname(__FILE__), 'acts_as_event_owner/railtie')
+dir = File.expand_path(File.dirname(__FILE__))
+require File.join(dir, 'acts_as_event_owner', 'version')
+require File.join(dir, 'acts_as_event_owner', 'event_specification')
+require File.join(dir, 'acts_as_event_owner', 'event_occurrence')
+require File.join(dir, 'acts_as_event_owner', 'railtie')
 
 module ActsAsEventOwner
   module ClassMethods

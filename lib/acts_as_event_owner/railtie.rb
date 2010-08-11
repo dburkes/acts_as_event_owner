@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), '../acts_as_event_owner') if !defined?(ActsAsEventOwner)
+require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'acts_as_event_owner') if !defined?(ActsAsEventOwner)
 
 module ActsAsEventOwner
   if defined? Rails::Railtie
