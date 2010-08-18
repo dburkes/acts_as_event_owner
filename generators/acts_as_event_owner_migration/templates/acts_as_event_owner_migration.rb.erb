@@ -8,10 +8,11 @@ class ActsAsEventOwnerMigration < ActiveRecord::Migration
       t.string :notification_type
       t.datetime :start_at
       t.datetime :end_at
-      t.string :repeat_type           # none, daily, weekly, monthly, yearly
-      t.string :repeat_frequency      # every 'n' days, weeks, months, or years
-      t.string :repeat_every          # on the nth
-      t.string :repeat_target         # none,Mo,Tu,We,Th,Fr,Sa,Su,day,wkday,wkend,Jan-Dec
+      t.string :repeat                         # daily, weekly, monthly, yearly
+      t.integer :frequency, :default => 1      # every 'n' days, weeks, months, or years
+      t.string :on                             # su, mo, tu, we, th, fr, sa, 1-31, jan-dec
+      t.string :on_the                         # first, second, third, fourth, last
+      t.string :target                         # su, mo, tu, we, th, fr, sa, day, wkday, wkend
       t.timestamps
     end
 

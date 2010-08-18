@@ -1,0 +1,6 @@
+Usage:
+
+  script/generate acts_as_event_owner_migration
+
+This will create a migration that will add the acts_as_event_owner tables to your database
+
