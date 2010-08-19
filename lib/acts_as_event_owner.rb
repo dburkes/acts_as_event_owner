@@ -11,5 +11,5 @@ require 'acts_as_event_owner/version'
 $LOAD_PATH.shift
 
 if defined?(ActiveRecord::Base)
-  ActiveRecord::Base.extend ActsAsEventOwner::Core
+  ActiveRecord::Base.send :include, ActsAsEventOwner::Core
 end
