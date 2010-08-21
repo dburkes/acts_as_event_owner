@@ -74,16 +74,16 @@ h3. Every three days
 <pre>ActsAsEventOwner::EventSpecification.create :description => 'call mom', :start_time => Time.parse("10:30am"), :repeat => :daily, :frequency => 3</pre>
 
 h3. On Monday, Wednesday, and Friday of each week
-<pre>ActsAsEventOwner::EventSpecification.create :description => 'go to the gym', :start_time => Time.parse("6:30am"), :repeat => :weekly, :on => [:mo, :we, :fr]</pre>
+<pre>ActsAsEventOwner::EventSpecification.create :description => 'go to the gym', :start_time => Time.parse("6:30am"), :repeat => :weekly, :on => [ :mo, :we, :fr ]</pre>
 
 h3. On Thursday, every other week
-<pre>ActsAsEventOwner::EventSpecification.create :description => 'clean the bathroom', :start_time => Time.parse("8:00pm"), :repeat => :weekly, :frequency => 2, :on => [:th]</pre>
+<pre>ActsAsEventOwner::EventSpecification.create :description => 'clean the bathroom', :start_time => Time.parse("8:00pm"), :repeat => :weekly, :frequency => 2, :on => [ :th ]</pre>
 
 h3. On the 10th and 25th of each month
-<pre>ActsAsEventOwner::EventSpecification.create :description => 'pick up paycheck', :start_time => Time.parse("9:30am"), :repeat => :monthly, :on => [10, 25]</pre>
+<pre>ActsAsEventOwner::EventSpecification.create :description => 'pick up paycheck', :start_time => Time.parse("9:30am"), :repeat => :monthly, :on => [ 10, 25 ]</pre>
 
 h3. On the last Saturday of each month
-<pre>ActsAsEventOwner::EventSpecification.create :description => 'run a marathon', :start_time => Time.parse("6:30am"), :repeat => :monthly, :on_the => :last, :target => [:sa]</pre>
+<pre>ActsAsEventOwner::EventSpecification.create :description => 'run a marathon', :start_time => Time.parse("6:30am"), :repeat => :monthly, :on_the => :last, :target => [ :sa ]</pre>
 
 h3. On the last weekday of each month
 <pre>ActsAsEventOwner::EventSpecification.create :description => 'wine tasting', :start_time => Time.parse("6:30pm"), :repeat => :monthly, :on_the => :last, :target => :wkday</pre>
@@ -92,4 +92,4 @@ h3. Every April 15th
 <pre>ActsAsEventOwner::EventSpecification.create :description => 'pay taxes', :start_time => Time.parse(""4/15/2010 5:00pm""), :repeat => :yearly</pre>
 
 h3. On the second Thursday in May, every other year
-<pre>ActsAsEventOwner::EventSpecification.create :description => 'freak out', :start_time => Time.now, :repeat => :yearly, :frequency => 2, :on => [5], :on_the => :second, :target => [:th]</pre>
+<pre>ActsAsEventOwner::EventSpecification.create :description => 'freak out', :start_time => Time.now, :repeat => :yearly, :frequency => 2, :on => [ 5 ], :on_the => :second, :target => [ :th ]</pre>
