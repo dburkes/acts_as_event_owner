@@ -42,7 +42,7 @@ module ActsAsEventOwner
           
         when :yearly
           if self.on_the
-            valid = self.on.present? && self.target.present? && (self.target.is_a?(Array) || BYDAYS.keys.include?(self.target))
+            valid = self.on.present? && self.on.is_a?(Array) && self.target.present? && (self.target.is_a?(Array) || BYDAYS.keys.include?(self.target))
           elsif self.on
             valid = self.on.is_a?(Array)
           else
