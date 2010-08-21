@@ -20,6 +20,13 @@ ActsAsEventOwner is available both as a gem and as a plugin. To install as a plu
 
 To install as a gem, use your preferred method of gem installation, _e.g._ Bundler, @config.gem@, etc.
 
+After installation, generate a migration to add ActsAsEventOwner tables to your database:
+
+<pre>
+  script/generate acts_as_event_owner_migration
+  rake db:migrate
+</pre>
+
 h2. Rails 3.0
 
 Just add it to your Gemfile, like so:
@@ -28,7 +35,13 @@ Just add it to your Gemfile, like so:
   gem 'acts_as_event_owner'
 </pre>
 
-Then do @bundle install@
+Then do:
+
+<pre>
+  bundle install
+  rails generate acts_as_event_owner:migration
+  rake db:migrate
+</pre>
 
 h2. Usage
 
@@ -44,7 +57,7 @@ h2. Usage
   
   @user.events.generate :from => Date.today, :to => Date.today + 1.week
   
-  @user.events # => (7 ActsAsEvenOwner::EventOccurrence objects)
+  @user.events # => (7 ActsAsEventOwner::EventOccurrence objects)
 </pre>
 
 h2. Recurrence rules
@@ -73,13 +86,10 @@ h3. On the last Saturday of each month
 <pre>ActsAsEventOwner::EventSpecification.create :description => 'run a marathon', :start_time => Time.parse("6:30am"), :repeat => :monthly, :on_the => :last, :target => [:sa]</pre>
 
 h3. On the last weekday of each month
-<pre>ActsAsEventOwner::EventSpecification.create :description => 'run a marathon', :start_time => Time.parse("6:30am"), :repeat => :monthly, :on_the => :last, :target => :wkday</pre>
+<pre>ActsAsEventOwner::EventSpecification.create :description => 'wine tasting', :start_time => Time.parse("6:30pm"), :repeat => :monthly, :on_the => :last, :target => :wkday</pre>
 
-h3. On the last Saturday of each month
-<pre>ActsAsEventOwner::EventSpecification.create :description => 'run a marathon', :start_time => Time.parse("6:30am"), :repeat => :monthly, :on_the => :last, :target => [:sa]</pre>
-
-h3. Once per year
+h3. Every April 15th
 <pre>ActsAsEventOwner::EventSpecification.create :description => 'pay taxes', :start_time => Time.parse(""4/15/2010 5:00pm""), :repeat => :yearly</pre>
 
-h3. Once every other year, on the second Thursday in May
+h3. On the second Thursday in May, every other year
 <pre>ActsAsEventOwner::EventSpecification.create :description => 'freak out', :start_time => Time.now, :repeat => :yearly, :frequency => 2, :on => [5], :on_the => :second, :target => [:th]</pre>
