@@ -1,2 +1,5 @@
 .idea
 *.tmproj
+*.db
+*.swp
+.DS_Store

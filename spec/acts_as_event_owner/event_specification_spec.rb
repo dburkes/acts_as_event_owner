@@ -107,4 +107,61 @@ describe ActsAsEventOwner::EventSpecification do
       EventSpecification.new(:repeat => :yearly, :on => [1,7], :on_the => :first, :target => :wkend).to_rrule.should == "FREQ=YEARLY;INTERVAL=1;BYMONTH=1,7;BYSETPOS=1;BYDAY=SU,SA"
     end
   end
+  
+  describe "#generate_events" do
+    before(:each) do
+      @now = Time.now
+      @bod = Date.today
+      @walking_the_dog = EventSpecification.create :description => 'walk the dog', :start_time => @now, :repeat => :daily, :frequency => 1
+    end
+    
+    it "generates a single event for a non-recurring event specification" do
+      es = EventSpecification.create :description => 'walk the dog', :start_time => @now
+      lambda {
+        es.generate_events :from => @bod
+      }.should change(EventOccurrence, :count).by(1)
+    end
+    
+    it "generates recurring events according to the rrule" do
+      lambda {
+        @walking_the_dog.generate_events :from => @bod, :to => @bod + 1.week
+      }.should change(EventOccurrence, :count).by(7)
+    end
+    
+    it "does not generate events before the specified :from" do
+      lambda {
+        @walking_the_dog.generate_events :from => @bod + 1.day, :to => @bod + 1.week
+      }.should change(EventOccurrence, :count).by(6)
+    end
+    
+    it "does not generate events after the specified :to" do
+      lambda {
+        @walking_the_dog.generate_events :from => @bod + 1.day, :to => @bod + 6.days
+      }.should change(EventOccurrence, :count).by(5)
+    end
+    
+    it "does not generate more events than the specified :count" do
+      lambda {
+        @walking_the_dog.generate_events :from => @bod, :to => @bod + 1.week, :count => 3
+      }.should change(EventOccurrence, :count).by(3)
+    end
+    
+    it "returns the new events" do
+      events = @walking_the_dog.generate_events :from => @bod, :to => @bod + 1.week
+      events.should be_present
+      events.first.class.should == EventOccurrence
+    end
+    
+    it "returns but does not persist duplicate events" do
+      lambda {
+        @walking_the_dog.generate_events :from => @bod, :to => @bod + 1.week
+      }.should change(EventOccurrence, :count).by(7)
+      
+      lambda {
+        events = @walking_the_dog.generate_events :from => @bod, :to => @bod + 1.week
+        events.should be_present
+        events.size.should == 7
+      }.should_not change(EventOccurrence, :count)
+    end
+  end
 end

@@ -1,3 +1,5 @@
+require 'ri_cal'
+
 module ActsAsEventOwner
   class EventSpecification < ::ActiveRecord::Base
     belongs_to :owner, :polymorphic => true
@@ -11,9 +13,11 @@ module ActsAsEventOwner
     ON_THE = { :first => '1', :second => '2', :third => '3', :fourth => '4', :last => '-1' }
     BYDAYS = { :day => 'SU,MO,TU,WE,TH,FR,SA', :wkday => 'MO,TU,WE,TH,FR', :wkend => 'SU,SA'}
 
+    before_validation :set_defaults
     validates_inclusion_of :repeat, :in => [:daily,:weekly,:monthly,:yearly], :allow_nil => true
     validates_inclusion_of :on_the, :in => ON_THE.keys, :allow_nil => true
     validates_numericality_of :frequency, :allow_nil => true
+    validates_presence_of :start_time
     validate :validate_recurrence_rules
     
     def validate_recurrence_rules
@@ -78,7 +82,37 @@ module ActsAsEventOwner
       end
     end
     
+    def generate_events options={}
+      raise "Invalid Event Specification" if !valid?
+      
+      opts = {
+        :from => Time.now,
+        :to => Time.now + 1.month
+      }.merge(options)
+      
+      cal = RiCal.Calendar do |cal|
+        cal.event do |event|
+          event.description self.description
+          event.dtstart(self.start_time) if self.start_time
+          event.dtend(self.end_time) if self.end_time
+          event.rrule = self.to_rrule if self.to_rrule
+        end
+      end
+      
+      event = cal.events.first
+      occurrences = event.occurrences(:starting => opts[:from], :before => opts[:to], :count => opts[:count])
+      occurrences.collect do |occurrence|
+        EventOccurrence.find_or_create_by_owner_id_and_owner_type_and_event_specification_id_and_start_time_and_end_time :owner_id => self.owner_id, :owner_type => self.owner_type, :event_specification_id => self.id,
+          :start_time => occurrence.start_time, :end_time => occurrence.finish_time, :description => self.description, 
+          :event_type => self.event_type, :notification_type => self.notification_type
+      end
+    end
+    
     protected
+   
+    def set_defaults
+      self.start_time ||= Time.now
+    end
     
     def byday
       self.target.is_a?(Array) ? self.target.join(',').upcase : BYDAYS[self.target]

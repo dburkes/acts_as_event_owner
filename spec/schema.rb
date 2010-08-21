@@ -3,7 +3,8 @@ ActiveRecord::Schema.define(:version => 1) do
     t.integer  "owner_id"
     t.string   "owner_type"
     t.integer  "event_specification_id"
-    t.datetime "when"
+    t.datetime "start_time"
+    t.datetime "end_time"
     t.string   "description"
     t.string   "event_type"
     t.string   "notification_type"
@@ -19,8 +20,8 @@ ActiveRecord::Schema.define(:version => 1) do
     t.string   "description"
     t.string   "event_type"
     t.string   "notification_type"
-    t.datetime "start_at"
-    t.datetime "end_at"
+    t.datetime "start_time"
+    t.datetime "end_time"
     t.string   "repeat"
     t.integer  "frequency",         :default => 1
     t.string   "on"
@@ -30,4 +31,10 @@ ActiveRecord::Schema.define(:version => 1) do
     t.datetime "updated_at"
   end
   add_index "event_specifications", ["owner_id", "owner_type"], :name => "index_event_specifications_on_owner_id_and_owner_type"
+  
+  create_table "users", :force => true do |t|
+    t.string   "name"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 end
