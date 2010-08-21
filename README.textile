@@ -27,6 +27,8 @@ After installation, generate a migration to add ActsAsEventOwner tables to your 
   rake db:migrate
 </pre>
 
+If you install as a plugin, be sure to install the @ri_cal@ gem by the method of your choice.
+
 h2. Rails 3.0
 
 Just add it to your Gemfile, like so:
