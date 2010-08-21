@@ -8,9 +8,9 @@ ActsAsEventOwner supports recurring events, with roughly the same recurrence rul
 application. Under the hood, ActsAsEventOwner uses "ri_cal":http://github.com/rubyredrick/ri_cal to provide
 recurring event support.
 
-h2. Installation
+h1. Installation
 
-h3. Rails 2.3.x
+h2. Rails 2.3.x
 
 ActsAsEventOwner is available both as a gem and as a plugin. To install as a plugin, just do
 
@@ -20,13 +20,15 @@ ActsAsEventOwner is available both as a gem and as a plugin. To install as a plu
 
 To install as a gem, use your preferred method of gem installation, _e.g._ Bundler, @config.gem@, etc.
 
-h3. Rails 3.0
+h2. Rails 3.0
 
 Just add it to your Gemfile, like so:
 
 <pre>
   gem 'acts_as_event_owner'
 </pre>
+
+Then do @bundle install@
 
 h2. Usage
 
@@ -45,63 +47,39 @@ h2. Usage
   @user.events # => (7 ActsAsEvenOwner::EventOccurrence objects)
 </pre>
 
-h3. Recurrence rules
+h2. Recurrence rules
 
 ActsAsEventOwner supports recurrence rules roughly equivalent to those supported by Apple's iCal application. Examples are:
 
-One-time event
-<pre>
-  ActsAsEventOwner::EventSpecification.create :description => 'pick up laundry', :start_time => Time.parse("4:00pm")
-</pre>
+h3. One-time event
+<pre>ActsAsEventOwner::EventSpecification.create :description => 'pick up laundry', :start_time => Time.parse("4:00pm")</pre>
 
-Every day
-<pre>
-  ActsAsEventOwner::EventSpecification.create :description => 'eat breakfast', :start_time => Time.parse("7:30am"), :repeat => :daily
-</pre>
+h3. Every day
+<pre>ActsAsEventOwner::EventSpecification.create :description => 'eat breakfast', :start_time => Time.parse("7:30am"), :repeat => :daily</pre>
 
-Every three days
-<pre>
-  ActsAsEventOwner::EventSpecification.create :description => 'call mom', :start_time => Time.parse("10:30am"), :repeat => :daily, :frequency => 3
-</pre>
+h3. Every three days
+<pre>ActsAsEventOwner::EventSpecification.create :description => 'call mom', :start_time => Time.parse("10:30am"), :repeat => :daily, :frequency => 3</pre>
 
-On Monday, Wednesday, and Friday of each week
-<pre>
-  ActsAsEventOwner::EventSpecification.create :description => 'go to the gym', :start_time => Time.parse("6:30am"), :repeat => :weekly, :on => [:mo, :we, :fr]
-</pre>
+h3. On Monday, Wednesday, and Friday of each week
+<pre>ActsAsEventOwner::EventSpecification.create :description => 'go to the gym', :start_time => Time.parse("6:30am"), :repeat => :weekly, :on => [:mo, :we, :fr]</pre>
 
-On Thursday, every other week
-<pre>
-  ActsAsEventOwner::EventSpecification.create :description => 'clean the bathroom', :start_time => Time.parse("8:00pm"), :repeat => :weekly, :frequency => 2, :on => [:th]
-</pre>
+h3. On Thursday, every other week
+<pre>ActsAsEventOwner::EventSpecification.create :description => 'clean the bathroom', :start_time => Time.parse("8:00pm"), :repeat => :weekly, :frequency => 2, :on => [:th]</pre>
 
-On the 10th and 25th of each month
-<pre>
-  ActsAsEventOwner::EventSpecification.create :description => 'pick up paycheck', :start_time => Time.parse("9:30am"), :repeat => :monthly, :on => [10, 25]
-</pre>
+h3. On the 10th and 25th of each month
+<pre>ActsAsEventOwner::EventSpecification.create :description => 'pick up paycheck', :start_time => Time.parse("9:30am"), :repeat => :monthly, :on => [10, 25]</pre>
 
-On the last Saturday of each month
-<pre>
-  ActsAsEventOwner::EventSpecification.create :description => 'run a marathon', :start_time => Time.parse("6:30am"), :repeat => :monthly, :on_the => :last, :target => [:sa]
-</pre>
+h3. On the last Saturday of each month
+<pre>ActsAsEventOwner::EventSpecification.create :description => 'run a marathon', :start_time => Time.parse("6:30am"), :repeat => :monthly, :on_the => :last, :target => [:sa]</pre>
 
-On the last weekday of each month
-<pre>
-  ActsAsEventOwner::EventSpecification.create :description => 'run a marathon', :start_time => Time.parse("6:30am"), :repeat => :monthly, :on_the => :last, :target => :wkday
-</pre>
+h3. On the last weekday of each month
+<pre>ActsAsEventOwner::EventSpecification.create :description => 'run a marathon', :start_time => Time.parse("6:30am"), :repeat => :monthly, :on_the => :last, :target => :wkday</pre>
 
-On the last Saturday of each month
-<pre>
-  ActsAsEventOwner::EventSpecification.create :description => 'run a marathon', :start_time => Time.parse("6:30am"), :repeat => :monthly, :on_the => :last, :target => [:sa]
-</pre>
+h3. On the last Saturday of each month
+<pre>ActsAsEventOwner::EventSpecification.create :description => 'run a marathon', :start_time => Time.parse("6:30am"), :repeat => :monthly, :on_the => :last, :target => [:sa]</pre>
 
-Once per year
-<pre>
-  ActsAsEventOwner::EventSpecification.create :description => 'pay taxes', :start_time => Time.parse(""4/15/2010 5:00pm""), :repeat => :yearly
-</pre>
+h3. Once per year
+<pre>ActsAsEventOwner::EventSpecification.create :description => 'pay taxes', :start_time => Time.parse(""4/15/2010 5:00pm""), :repeat => :yearly</pre>
 
-Once every other year, on the second Thursday in May
-<pre>
-  ActsAsEventOwner::EventSpecification.create :description => 'freak out', :start_time => Time.now, :repeat => :yearly, :frequency => 2, :on => [5], :on_the => :second, :target => [:th]
-</pre>
-
-
+h3. Once every other year, on the second Thursday in May
+<pre>ActsAsEventOwner::EventSpecification.create :description => 'freak out', :start_time => Time.now, :repeat => :yearly, :frequency => 2, :on => [5], :on_the => :second, :target => [:th]</pre>
