@@ -3,8 +3,8 @@ require File.expand_path('../../spec_helper', __FILE__)
 describe ActsAsEventOwner::Core do
   before(:each) do
     @user = User.create :name => 'dude'
-    @now = Time.now
-    @bod = Date.today
+    @now = Time.now.utc
+    @bod = Date.today.to_time.utc
   end
   
   it "adds associations to the host object" do

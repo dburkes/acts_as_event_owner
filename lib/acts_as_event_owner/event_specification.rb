@@ -87,9 +87,10 @@ module ActsAsEventOwner
       raise ActsAsEventOwner::Exception.new("Invalid Event Specification") if !valid?
       
       opts = {
-        :from => Time.now,
-        :to => Time.now + 1.month
+        :from => Time.now.utc,
       }.merge(options)
+      
+      opts[:to] ||= opts[:from] + 1.month
       
       cal = RiCal.Calendar do |cal|
         cal.event do |event|
@@ -112,7 +113,7 @@ module ActsAsEventOwner
     protected
    
     def set_defaults
-      self.start_time ||= Time.now
+      self.start_time ||= Time.now.utc
       self.end_time ||= self.start_time + 1.hour
     end
     

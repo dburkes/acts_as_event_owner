@@ -53,11 +53,11 @@ h2. Usage
   end
   
   @user = User.create :name => 'Alvin Seville'
-  @user.event_specifications.create :description => 'acquire cheese balls', :start_time => Date.today, :repeat => :daily
+  @user.event_specifications.create :description => 'acquire cheese balls', :start_time => Date.today.to_time.utc, :repeat => :daily
   
   @user.events # => []
   
-  @user.events.generate :from => Date.today, :to => Date.today + 1.week
+  @user.events.generate :from => Date.today.to_time.utc, :to => Date.today.to_time.utc + 1.week
   
   @user.events # => (7 ActsAsEventOwner::EventOccurrence objects)
 </pre>
@@ -91,7 +91,7 @@ h3. On the last weekday of each month
 <pre>ActsAsEventOwner::EventSpecification.create :description => 'wine tasting', :start_time => Time.parse("6:30pm"), :repeat => :monthly, :on_the => :last, :target => :wkday</pre>
 
 h3. Every April 15th
-<pre>ActsAsEventOwner::EventSpecification.create :description => 'pay taxes', :start_time => Time.parse(""4/15/2010 5:00pm""), :repeat => :yearly</pre>
+<pre>ActsAsEventOwner::EventSpecification.create :description => 'pay taxes', :start_time => Time.parse("4/15/2010 5:00pm"), :repeat => :yearly</pre>
 
-h3. On the second Thursday in May, every other year
-<pre>ActsAsEventOwner::EventSpecification.create :description => 'freak out', :start_time => Time.now, :repeat => :yearly, :frequency => 2, :on => [ 5 ], :on_the => :second, :target => [ :th ]</pre>
+h3. On the second Thursday in May, every other year, until Dec 31, 2012
+<pre>ActsAsEventOwner::EventSpecification.create :description => 'freak out', :start_time => Time.now.utc, :repeat => :yearly, :frequency => 2, :on => [ 5 ], :on_the => :second, :target => [ :th ], :until => Time.parse("12/31/2012")</pre>

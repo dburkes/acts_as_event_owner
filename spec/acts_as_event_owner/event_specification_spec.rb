@@ -137,8 +137,8 @@ describe ActsAsEventOwner::EventSpecification do
   
   describe "#generate_events" do
     before(:each) do
-      @now = Time.now
-      @bod = Date.today
+      @now = Time.now.utc
+      @bod = Date.today.to_time.utc
       @walking_the_dog = create_event_specification :description => 'walk the dog', :start_time => @now, :repeat => :daily, :frequency => 1
     end
     

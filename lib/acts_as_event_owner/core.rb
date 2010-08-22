@@ -12,7 +12,7 @@ module ActsAsEventOwner
           has_many :event_specifications, :class_name => ActsAsEventOwner::EventSpecification.name, :as => :owner, :dependent => :destroy
           has_many :events, :class_name => ActsAsEventOwner::EventOccurrence.name, :as => :owner, :readonly => true do
             def generate(options={})
-              proxy_owner.event_specifications.each {|spec| spec.generate_events(options)}
+              proxy_owner.event_specifications.find(:all, :conditions => "until IS NULL OR until >= '#{Time.now.utc.to_s(:db)}'").each {|spec| spec.generate_events(options)}
               self.reload
             end
             
