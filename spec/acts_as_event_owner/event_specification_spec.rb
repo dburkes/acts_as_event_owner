@@ -60,7 +60,9 @@ describe ActsAsEventOwner::EventSpecification do
     end
     
     it "generates an RRULE" do
+      # every day
       new_event_specification(:repeat => :daily).to_rrule.should == "FREQ=DAILY;INTERVAL=1"
+      # every four days
       new_event_specification(:repeat => :daily, :frequency => 4).to_rrule.should == "FREQ=DAILY;INTERVAL=4"
     end
   end
@@ -70,6 +72,8 @@ describe ActsAsEventOwner::EventSpecification do
       new_event_specification(:repeat => :weekly).should be_valid
       new_event_specification(:repeat => :weekly, :frequency => 2).should be_valid
       new_event_specification(:repeat => :weekly, :on => [:mo, :we, :fr]).should be_valid
+      new_event_specification(:repeat => :weekly, :frequency => 2, :on => [:mo, :we, :fr]).should be_valid
+      new_event_specification(:repeat => :weekly, :frequency => 2, :on => [:mo, :we, :fr], :until => Time.parse("12/31/2010")).should be_valid
     end
     
     it "does not support invalid recurrence specifications" do
@@ -79,9 +83,16 @@ describe ActsAsEventOwner::EventSpecification do
     end
     
     it "generates an RRULE" do
+      # every week
       new_event_specification(:repeat => :weekly).to_rrule.should == "FREQ=WEEKLY;INTERVAL=1"
+      # every two weeks
       new_event_specification(:repeat => :weekly, :frequency => 2).to_rrule.should == "FREQ=WEEKLY;INTERVAL=2"
+      # every monday, wednesday, and friday
       new_event_specification(:repeat => :weekly, :on => [:mo, :we, :fr]).to_rrule.should == "FREQ=WEEKLY;INTERVAL=1;BYDAY=MO,WE,FR"
+      # every other monday, wednesday, and friday
+      new_event_specification(:repeat => :weekly, :frequency => 2, :on => [:mo, :we, :fr]).to_rrule.should == "FREQ=WEEKLY;INTERVAL=2;BYDAY=MO,WE,FR"
+      # every other monday, wednesday, and friday, until 12/31/2010
+      new_event_specification(:repeat => :weekly, :frequency => 2, :on => [:mo, :we, :fr], :until => Time.parse("12/31/2010")).to_rrule.should == "FREQ=WEEKLY;INTERVAL=2;BYDAY=MO,WE,FR;UNTIL=20101231T000000Z"
     end
   end
   
@@ -91,7 +102,7 @@ describe ActsAsEventOwner::EventSpecification do
       new_event_specification(:repeat => :monthly, :frequency => 2).should be_valid
       new_event_specification(:repeat => :monthly, :frequency => 2, :on => [1, 15, 20]).should be_valid
       new_event_specification(:repeat => :monthly, :frequency => 2, :on_the => :third, :target => :wkday).should be_valid
-      new_event_specification(:repeat => :monthly, :frequency => 2, :on_the => :third, :target => [:mo, :we]).should be_valid
+      new_event_specification(:repeat => :monthly, :frequency => 2, :on_the => :third, :target => [:mo, :we], :until => Time.parse("12/31/2010")).should be_valid
     end
     
     it "does not support invalid recurrence specification" do
@@ -104,11 +115,16 @@ describe ActsAsEventOwner::EventSpecification do
     end
     
     it "generates an RRULE" do
+      # every month
       new_event_specification(:repeat => :monthly).to_rrule.should == "FREQ=MONTHLY;INTERVAL=1"
+      # every two months
       new_event_specification(:repeat => :monthly, :frequency => 2).to_rrule.should == "FREQ=MONTHLY;INTERVAL=2"
+      # every other month, on the 1st, 15th, and 20th
       new_event_specification(:repeat => :monthly, :frequency => 2, :on => [1, 15, 20]).to_rrule.should == "FREQ=MONTHLY;INTERVAL=2;BYMONTHDAY=1,15,20"
+      # every other month, on the third weekday of the month
       new_event_specification(:repeat => :monthly, :frequency => 2, :on_the => :third, :target => :wkday).to_rrule.should == "FREQ=MONTHLY;INTERVAL=2;BYSETPOS=3;BYDAY=MO,TU,WE,TH,FR"
-      new_event_specification(:repeat => :monthly, :frequency => 2, :on_the => :third, :target => [:mo, :we]).to_rrule.should == "FREQ=MONTHLY;INTERVAL=2;BYSETPOS=3;BYDAY=MO,WE"
+      # every other month, on the third monday and third wednesday, until 12/31/2010
+      new_event_specification(:repeat => :monthly, :frequency => 2, :on_the => :third, :target => [:mo, :we], :until => Time.parse("12/31/2010")).to_rrule.should == "FREQ=MONTHLY;INTERVAL=2;BYSETPOS=3;BYDAY=MO,WE;UNTIL=20101231T000000Z"
     end
   end
   
@@ -117,6 +133,7 @@ describe ActsAsEventOwner::EventSpecification do
       new_event_specification(:repeat => :yearly, :on => [1,7]).should be_valid
       new_event_specification(:repeat => :yearly, :frequency => 2, :on => [1,7]).should be_valid
       new_event_specification(:repeat => :yearly, :on => [1,7], :on_the => :first, :target => :wkend).should be_valid
+      new_event_specification(:repeat => :yearly, :frequency => 2, :on => [1,7], :on_the => :first, :target => :wkday, :until => Time.parse("12/31/2010")).should be_valid
     end
     
     it "does not support invalid recurrence rules" do
@@ -129,9 +146,14 @@ describe ActsAsEventOwner::EventSpecification do
     end
     
     it "generates an RRULE" do
+      # every year in january and july
       new_event_specification(:repeat => :yearly, :on => [1,7]).to_rrule.should == "FREQ=YEARLY;INTERVAL=1;BYMONTH=1,7"
+      # every other year, in january and july
       new_event_specification(:repeat => :yearly, :frequency => 2, :on => [1,7]).to_rrule.should == "FREQ=YEARLY;INTERVAL=2;BYMONTH=1,7"
+      # every year, on the first weekend day in january and july
       new_event_specification(:repeat => :yearly, :on => [1,7], :on_the => :first, :target => :wkend).to_rrule.should == "FREQ=YEARLY;INTERVAL=1;BYMONTH=1,7;BYSETPOS=1;BYDAY=SU,SA"
+      # every other year, on the first weekday in january and july, until 12/31/2010
+      new_event_specification(:repeat => :yearly, :frequency => 2, :on => [1,7], :on_the => :first, :target => :wkday, :until => Time.parse("12/31/2010")).to_rrule.should == "FREQ=YEARLY;INTERVAL=2;BYMONTH=1,7;BYSETPOS=1;BYDAY=MO,TU,WE,TH,FR;UNTIL=20101231T000000Z"
     end
   end
   
