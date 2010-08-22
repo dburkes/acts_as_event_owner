@@ -1,6 +1,27 @@
 require File.expand_path('../../spec_helper', __FILE__)
 
 describe ActsAsEventOwner::EventSpecification do
+  describe "defaults" do
+    it "defaults start_time to now" do
+      now = Time.now
+      Time.stub!(:now).and_return(now)
+      spec = new_event_specification
+      spec.should be_valid
+      spec.start_time.should == now
+    end
+    
+    it "defaults duration to one hour" do
+      spec = new_event_specification
+      spec.should be_valid
+      spec.end_time.should == spec.start_time + 1.hour
+    end
+    
+    it "defaults repeat until forever" do
+      spec = new_event_specification(:repeat => :daily)
+      spec.until.should be_nil
+    end
+  end
+  
   describe "validations" do
     it "requires a valid repeat interval" do
       new_event_specification(:repeat => :bogus).should_not be_valid
@@ -118,7 +139,7 @@ describe ActsAsEventOwner::EventSpecification do
     before(:each) do
       @now = Time.now
       @bod = Date.today
-      @walking_the_dog = create_event_specification :start_time => @now, :repeat => :daily, :frequency => 1
+      @walking_the_dog = create_event_specification :description => 'walk the dog', :start_time => @now, :repeat => :daily, :frequency => 1
     end
     
     it "generates a single event for a non-recurring event specification" do
@@ -176,6 +197,13 @@ describe ActsAsEventOwner::EventSpecification do
       lambda {
         spec.generate_events :from => @bod
       }.should raise_error(ActsAsEventOwner::Exception)
+    end
+    
+    it "does not generate events for specification that are past their end_time" do
+      @walking_the_dog.update_attributes! :start_time => @now - 1.week, :until => @now - 2.days
+      lambda {
+        @walking_the_dog.generate_events :from => @bod, :to => @bod + 1.week
+      }.should_not change(EventOccurrence, :count)
     end
   end
 end

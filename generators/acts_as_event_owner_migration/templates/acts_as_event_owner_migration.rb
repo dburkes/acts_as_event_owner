@@ -13,6 +13,7 @@ class ActsAsEventOwnerMigration < ActiveRecord::Migration
       t.string :on                             # su, mo, tu, we, th, fr, sa, 1-31, jan-dec
       t.string :on_the                         # first, second, third, fourth, last
       t.string :target                         # su, mo, tu, we, th, fr, sa, day, wkday, wkend
+      t.datetime :until
       t.timestamps
     end
 

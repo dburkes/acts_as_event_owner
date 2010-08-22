@@ -27,6 +27,7 @@ ActiveRecord::Schema.define(:version => 1) do
     t.string   "on"
     t.string   "on_the"
     t.string   "target"
+    t.datetime "until"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

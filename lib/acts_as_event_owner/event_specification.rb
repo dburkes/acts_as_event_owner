@@ -55,32 +55,32 @@ module ActsAsEventOwner
     end
     
     def to_rrule
-      return nil unless self.valid?
+      return nil if !self.valid? || self.repeat.nil?
+
+      components = []
       
       case self.repeat
-        when nil
-          nil
-          
         when :daily
-          "FREQ=DAILY;INTERVAL=#{self.frequency}"
           
         when :weekly
-          rr = "FREQ=WEEKLY;INTERVAL=#{self.frequency}"
-          rr << ";BYDAY=#{self.on.join(',').upcase}" if self.on
-          rr
+          components << "BYDAY=#{self.on.join(',').upcase}" if self.on
           
         when :monthly
-          rr = "FREQ=MONTHLY;INTERVAL=#{self.frequency}"
-          rr << ";BYSETPOS=#{ON_THE[self.on_the]};BYDAY=#{byday}" if self.on_the
-          rr << ";BYMONTHDAY=#{self.on.join(',').upcase}" if self.on
-          rr
+          if self.on_the
+            components << "BYSETPOS=#{ON_THE[self.on_the]}"
+            components << "BYDAY=#{byday}"
+          end
+          components << "BYMONTHDAY=#{self.on.join(',').upcase}" if self.on
           
         when :yearly
-          rr = "FREQ=YEARLY;INTERVAL=#{self.frequency}"
-          rr << ";BYMONTH=#{self.on.join(',').upcase}" if self.on
-          rr << ";BYSETPOS=#{ON_THE[self.on_the]};BYDAY=#{byday}" if self.on_the
-          rr
+          components << "BYMONTH=#{self.on.join(',').upcase}" if self.on
+          components << "BYSETPOS=#{ON_THE[self.on_the]};BYDAY=#{byday}" if self.on_the
       end
+      
+      components.unshift "INTERVAL=#{self.frequency}" if self.frequency
+      components.unshift "FREQ=#{self.repeat.to_s.upcase}"
+      components << "UNTIL=#{self.until.strftime("%Y%m%dT%H%M%SZ")}" if self.until
+      components.join(';')
     end
     
     def generate_events options={}
@@ -113,6 +113,7 @@ module ActsAsEventOwner
    
     def set_defaults
       self.start_time ||= Time.now
+      self.end_time ||= self.start_time + 1.hour
     end
     
     def byday
