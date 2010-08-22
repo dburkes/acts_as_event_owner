@@ -14,6 +14,7 @@ module ActsAsEventOwner
     BYDAYS = { :day => 'SU,MO,TU,WE,TH,FR,SA', :wkday => 'MO,TU,WE,TH,FR', :wkend => 'SU,SA'}
 
     before_validation :set_defaults
+    validates_presence_of :description
     validates_inclusion_of :repeat, :in => [:daily,:weekly,:monthly,:yearly], :allow_nil => true
     validates_inclusion_of :on_the, :in => ON_THE.keys, :allow_nil => true
     validates_numericality_of :frequency, :allow_nil => true
@@ -83,7 +84,7 @@ module ActsAsEventOwner
     end
     
     def generate_events options={}
-      raise "Invalid Event Specification" if !valid?
+      raise ActsAsEventOwner::Exception.new("Invalid Event Specification") if !valid?
       
       opts = {
         :from => Time.now,

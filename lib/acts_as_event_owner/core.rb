@@ -15,6 +15,18 @@ module ActsAsEventOwner
               proxy_owner.event_specifications.each {|spec| spec.generate_events(options)}
               self.reload
             end
+            
+            def <<(obj)
+              raise ActsAsEventOwner::Exception.new("Do not add events directly- add event specifications, then call events.generate")
+            end
+            
+            def build(attributes={})
+              raise ActsAsEventOwner::Exception.new("Do not build events directly- build event specifications, then call events.generate")
+            end
+            
+            def create(attributes={})
+              raise ActsAsEventOwner::Exception.new("Do not create events directly- build event specifications, then call events.generate")
+            end
           end
         end
       end

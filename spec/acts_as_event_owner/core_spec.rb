@@ -39,4 +39,23 @@ describe ActsAsEventOwner::Core do
     @user.events.should be_present
     @user.events.size.should == 7
   end
+  
+  describe "events association" do
+    before(:each) do
+      @new_event = EventOccurrence.new
+      @new_event.should be_valid
+    end
+
+    it "raises an exception if #<< is called" do
+      lambda { @user.events << @new_event }.should raise_error(ActsAsEventOwner::Exception)
+    end
+
+    it "raises an exception is #build is called" do
+      lambda { @user.events.build @new_event.attributes }.should raise_error(ActsAsEventOwner::Exception)
+    end
+
+    it "raises an exception if #create is called" do
+      lambda { @user.events.create @new_event.attributes }.should raise_error(ActsAsEventOwner::Exception)
+    end
+  end
 end

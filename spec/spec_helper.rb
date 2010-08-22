@@ -11,6 +11,7 @@ ActiveRecord::Base.establish_connection({
 require File.expand_path('../../lib/acts_as_event_owner', __FILE__)
 include ActsAsEventOwner
 
+require 'support/model_builders'
 require 'support/user'
 
 ActiveRecord::Base.silence do

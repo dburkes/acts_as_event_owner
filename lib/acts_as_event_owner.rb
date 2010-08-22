@@ -6,6 +6,7 @@ $LOAD_PATH.unshift(File.dirname(__FILE__))
 require 'acts_as_event_owner/core'
 require 'acts_as_event_owner/event_specification'
 require 'acts_as_event_owner/event_occurrence'
+require 'acts_as_event_owner/exception'
 require 'acts_as_event_owner/version'
 
 $LOAD_PATH.shift
