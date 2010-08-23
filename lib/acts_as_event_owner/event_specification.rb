@@ -21,6 +21,8 @@ module ActsAsEventOwner
     validates_presence_of :start_time
     validate :validate_recurrence_rules
     
+    after_create :generate_if_non_recurring
+    
     def validate_recurrence_rules
       case self.repeat
         when nil
@@ -85,12 +87,11 @@ module ActsAsEventOwner
     
     def generate_events options={}
       raise ActsAsEventOwner::Exception.new("Invalid Event Specification") if !valid?
-      
-      opts = {
-        :from => Time.now.utc,
-      }.merge(options)
-      
-      opts[:to] ||= opts[:from] + 1.month
+
+      opts = options.clone
+      opts[:to] ||= (opts[:from] + 1.month) if opts[:from]
+      opts[:to] += 1.second if opts[:to]
+      opts[:from] -= 1.second if opts[:from]
       
       cal = RiCal.Calendar do |cal|
         cal.event do |event|
@@ -100,7 +101,6 @@ module ActsAsEventOwner
           event.rrule = self.to_rrule if self.to_rrule
         end
       end
-      
       event = cal.events.first
       occurrences = event.occurrences(:starting => opts[:from], :before => opts[:to], :count => opts[:count])
       occurrences.collect do |occurrence|
@@ -119,6 +119,10 @@ module ActsAsEventOwner
     
     def byday
       self.target.is_a?(Array) ? self.target.join(',').upcase : BYDAYS[self.target]
+    end
+    
+    def generate_if_non_recurring
+      self.generate_events(:from => self.start_time) if self.repeat.nil?
     end
   end
 end

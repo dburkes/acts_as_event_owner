@@ -40,6 +40,12 @@ describe ActsAsEventOwner::EventSpecification do
     it "does not generate an RRULE" do
       new_event_specification.to_rrule.should be_nil
     end
+    
+    it "immediately generates" do
+      lambda {
+        create_event_specification(:start_time => Time.now.utc, :end_time => Time.now.utc + 1.hour)
+      }.should change(ActsAsEventOwner::EventOccurrence, :count).by(1)
+    end
   end
   
   describe "events recurring daily" do
@@ -165,10 +171,14 @@ describe ActsAsEventOwner::EventSpecification do
     end
     
     it "generates a single event for a non-recurring event specification" do
-      es = create_event_specification :start_time => @now
+      spec = nil
       lambda {
-        es.generate_events :from => @bod
+        spec = create_event_specification :start_time => @now
       }.should change(EventOccurrence, :count).by(1)
+      
+      lambda {
+        spec.generate_events
+      }.should change(EventOccurrence, :count).by(0)
     end
     
     it "generates recurring events according to the rrule" do
