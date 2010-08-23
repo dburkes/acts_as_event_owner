@@ -69,12 +69,14 @@ h2. Recurrence rules
 ActsAsEventOwner supports recurrence rules roughly equivalent to those supported by Apple's iCal application. Examples are:
 
 h3. One-time event
+
 <pre>
   EventSpecification.create :description => 'pick up laundry', 
     :start_time => Time.parse("4:00pm")
 </pre>
 
 h3. Every day
+
 <pre>
   EventSpecification.create :description => 'eat breakfast', 
     :start_time => Time.parse("7:30am"), 
@@ -82,6 +84,7 @@ h3. Every day
 </pre>
 
 h3. Every three days
+
 <pre>
   EventSpecification.create :description => 'call mom', 
     :start_time => Time.parse("10:30am"), 
@@ -90,6 +93,7 @@ h3. Every three days
 </pre>
 
 h3. On Monday, Wednesday, and Friday of each week
+
 <pre>
   EventSpecification.create :description => 'go to the gym', 
     :start_time => Time.parse("6:30am"), 
@@ -98,6 +102,7 @@ h3. On Monday, Wednesday, and Friday of each week
 </pre>
 
 h3. On Thursday, every other week
+
 <pre>
   EventSpecification.create :description => 'clean the bathroom', 
     :start_time => Time.parse("8:00pm"), 
@@ -106,6 +111,7 @@ h3. On Thursday, every other week
 </pre>
 
 h3. On the 10th and 25th of each month
+
 <pre>
   EventSpecification.create :description => 'pick up paycheck', 
     :start_time => Time.parse("9:30am"), 
@@ -114,6 +120,7 @@ h3. On the 10th and 25th of each month
 </pre>
 
 h3. On the last Saturday of each month
+
 <pre>
   EventSpecification.create :description => 'run a marathon', 
     :start_time => Time.parse("6:30am"), 
@@ -123,6 +130,7 @@ h3. On the last Saturday of each month
 </pre>
 
 h3. On the last weekday of each month
+
 <pre>
   EventSpecification.create :description => 'wine tasting', 
     :start_time => Time.parse("6:30pm"), 
@@ -132,6 +140,7 @@ h3. On the last weekday of each month
 </pre>
 
 h3. Every April 15th
+
 <pre>
   EventSpecification.create :description => 'pay taxes', 
     :start_time => Time.parse("4/15/2010 5:00pm"), 
@@ -139,6 +148,7 @@ h3. Every April 15th
 </pre>
 
 h3. On the second Thursday in May, every other year, until Dec 31, 2012
+
 <pre>
   EventSpecification.create :description => 'freak out', 
     :start_time => Time.now.utc, 
