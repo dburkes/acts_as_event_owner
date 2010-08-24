@@ -4,10 +4,8 @@ class ActsAsEventOwnerMigration < ActiveRecord::Migration
       t.integer :owner_id
       t.string :owner_type
       t.string :description
-      t.string :event_type
-      t.string :notification_type
-      t.datetime :start_time
-      t.datetime :end_time
+      t.datetime :start_at
+      t.datetime :end_at
       t.string :repeat                         # daily, weekly, monthly, yearly
       t.integer :frequency, :default => 1      # every 'n' days, weeks, months, or years
       t.string :on                             # su, mo, tu, we, th, fr, sa, 1-31, jan-dec
@@ -23,11 +21,9 @@ class ActsAsEventOwnerMigration < ActiveRecord::Migration
       t.integer :owner_id
       t.string :owner_type
       t.integer :event_specification_id
-      t.datetime :start_time
-      t.datetime :end_time
+      t.datetime :start_at
+      t.datetime :end_at
       t.string :description
-      t.string :event_type
-      t.string :notification_type
       t.timestamps
     end
 

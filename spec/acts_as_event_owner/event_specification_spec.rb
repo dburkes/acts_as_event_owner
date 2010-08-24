@@ -1,19 +1,23 @@
 require File.expand_path('../../spec_helper', __FILE__)
 
 describe ActsAsEventOwner::EventSpecification do
+  before(:each) do
+    clean_database!
+  end
+  
   describe "defaults" do
-    it "defaults start_time to now" do
+    it "defaults start_at to now" do
       now = Time.now
       Time.stub!(:now).and_return(now)
       spec = new_event_specification
       spec.should be_valid
-      spec.start_time.should == now
+      spec.start_at.should == now
     end
     
     it "defaults duration to one hour" do
       spec = new_event_specification
       spec.should be_valid
-      spec.end_time.should == spec.start_time + 1.hour
+      spec.end_at.should == spec.start_at + 1.hour
     end
     
     it "defaults repeat until forever" do
@@ -31,7 +35,7 @@ describe ActsAsEventOwner::EventSpecification do
       new_event_specification(:description => nil).should_not be_valid
     end
   end
-
+  
   describe "non-recurring events" do
     it "passes validations" do
       new_event_specification.should be_valid
@@ -39,12 +43,6 @@ describe ActsAsEventOwner::EventSpecification do
     
     it "does not generate an RRULE" do
       new_event_specification.to_rrule.should be_nil
-    end
-    
-    it "immediately generates" do
-      lambda {
-        create_event_specification(:start_time => Time.now.utc, :end_time => Time.now.utc + 1.hour)
-      }.should change(ActsAsEventOwner::EventOccurrence, :count).by(1)
     end
   end
   
@@ -167,75 +165,129 @@ describe ActsAsEventOwner::EventSpecification do
     before(:each) do
       @now = Time.now.utc
       @bod = Date.today.to_time.utc
-      @walking_the_dog = create_event_specification :description => 'walk the dog', :start_time => @now, :repeat => :daily, :frequency => 1
+    end
+
+    describe "non-recurring events" do
+      before(:each) do
+        @spec = create_event_specification :start_at => @now, :generate => false
+      end
+      
+      it "generates a single event" do
+        lambda {
+          @spec.generate_events
+        }.should change(EventOccurrence, :count).by(1)
+      end
+    end
+
+    describe "recurring events" do
+      before(:each) do
+        @spec = create_event_specification :description => 'walk the dog', :start_at => @now, :repeat => :daily, :frequency => 1, :generate => false
+      end
+      
+      it "generates recurring events according to the rrule" do
+        lambda {
+          @spec.generate_events :from => @bod, :to => @bod + 1.week
+        }.should change(EventOccurrence, :count).by(7)
+      end
+    
+      it "does not generate events before the specified :from" do
+        lambda {
+          @spec.generate_events :from => @bod + 1.day, :to => @bod + 1.week
+        }.should change(EventOccurrence, :count).by(6)
+      end
+    
+      it "does not generate events after the specified :to" do
+        lambda {
+          @spec.generate_events :from => @bod + 1.day, :to => @bod + 6.days
+        }.should change(EventOccurrence, :count).by(5)
+      end
+    
+      it "does not generate more events than the specified :count" do
+        lambda {
+          @spec.generate_events :from => @bod, :to => @bod + 1.week, :count => 3
+        }.should change(EventOccurrence, :count).by(3)
+      end
+    
+      it "returns the new events" do
+        events = @spec.generate_events :from => @bod, :to => @bod + 1.week
+        events.should be_present
+        events.first.class.should == EventOccurrence
+      end
+    
+      it "returns but does not persist duplicate events" do
+        lambda {
+          @spec.generate_events :from => @bod, :to => @bod + 1.week
+        }.should change(EventOccurrence, :count).by(7)
+      
+        lambda {
+          events = @spec.generate_events :from => @bod, :to => @bod + 1.week
+          events.should be_present
+          events.size.should == 7
+        }.should_not change(EventOccurrence, :count)
+      end
+    
+      it "raises an exception if the event specification is invalid" do
+        spec = new_event_specification(:description => nil)
+        spec.should_not be_valid
+        lambda {
+          spec.generate_events :from => @bod
+        }.should raise_error(ActsAsEventOwner::Exception)
+      end
+    
+      it "does not generate events for specifications that are past their end_at" do
+        @spec.update_attributes! :start_at => @now - 1.week, :until => @now - 2.days
+        lambda {
+          @spec.generate_events :from => @bod, :to => @bod + 1.week
+        }.should_not change(EventOccurrence, :count)
+      end
+    end
+  end
+  
+  describe "autogeneration" do
+    before(:each) do
+      @now = Time.now.utc
+      @bod = Date.today.to_time.utc
     end
     
-    it "generates a single event for a non-recurring event specification" do
-      spec = nil
+    def create_daily_event(generate=nil)
+      create_event_specification :description => 'walk the dog', :start_at => @now, :repeat => :daily, :frequency => 2, :generate => generate
+    end
+
+    it "generates 30 days worth of events by default" do
       lambda {
-        spec = create_event_specification :start_time => @now
-      }.should change(EventOccurrence, :count).by(1)
+        create_daily_event
+      }.should change(EventOccurrence, :count).by(15)
+    end
+    
+    it "does not generate any events if the :generate attribute is set to false" do
+      lambda {
+        create_daily_event(false)
+      }.should_not change(EventOccurrence, :count)
+    end
+    
+    it "generates events according the :generate attribute" do
+      lambda {
+        create_daily_event(:to => @now + 15.days)
+      }.should change(EventOccurrence, :count).by(8)
       
       lambda {
-        spec.generate_events
-      }.should change(EventOccurrence, :count).by(0)
-    end
-    
-    it "generates recurring events according to the rrule" do
-      lambda {
-        @walking_the_dog.generate_events :from => @bod, :to => @bod + 1.week
-      }.should change(EventOccurrence, :count).by(7)
-    end
-    
-    it "does not generate events before the specified :from" do
-      lambda {
-        @walking_the_dog.generate_events :from => @bod + 1.day, :to => @bod + 1.week
-      }.should change(EventOccurrence, :count).by(6)
-    end
-    
-    it "does not generate events after the specified :to" do
-      lambda {
-        @walking_the_dog.generate_events :from => @bod + 1.day, :to => @bod + 6.days
+        create_daily_event(:count => 5)
       }.should change(EventOccurrence, :count).by(5)
     end
-    
-    it "does not generate more events than the specified :count" do
-      lambda {
-        @walking_the_dog.generate_events :from => @bod, :to => @bod + 1.week, :count => 3
-      }.should change(EventOccurrence, :count).by(3)
+  end
+  
+  describe "self.generate_events" do
+    before(:each) do
+      @now = Time.now.utc
+      @bod = Date.today.to_time.utc
+      @walking_the_dog = create_event_specification :description => 'walk the dog', :start_at => @now, :repeat => :daily, :frequency => 1, :generate => false
+      @taking_out_the_trash = create_event_specification :description => 'take out the trash', :start_at => @now, :repeat => :daily, :frequency => 3, :generate => false
     end
-    
-    it "returns the new events" do
-      events = @walking_the_dog.generate_events :from => @bod, :to => @bod + 1.week
-      events.should be_present
-      events.first.class.should == EventOccurrence
-    end
-    
-    it "returns but does not persist duplicate events" do
+
+    it "generates events for all event specifications" do
       lambda {
-        @walking_the_dog.generate_events :from => @bod, :to => @bod + 1.week
-      }.should change(EventOccurrence, :count).by(7)
-      
-      lambda {
-        events = @walking_the_dog.generate_events :from => @bod, :to => @bod + 1.week
-        events.should be_present
-        events.size.should == 7
-      }.should_not change(EventOccurrence, :count)
-    end
-    
-    it "raises an exception if the event specification is invalid" do
-      spec = new_event_specification(:description => nil)
-      spec.should_not be_valid
-      lambda {
-        spec.generate_events :from => @bod
-      }.should raise_error(ActsAsEventOwner::Exception)
-    end
-    
-    it "does not generate events for specification that are past their end_time" do
-      @walking_the_dog.update_attributes! :start_time => @now - 1.week, :until => @now - 2.days
-      lambda {
-        @walking_the_dog.generate_events :from => @bod, :to => @bod + 1.week
-      }.should_not change(EventOccurrence, :count)
+        ActsAsEventOwner::EventSpecification.generate_events :from => @bod, :to => @bod + 1.week
+      }.should change(EventOccurrence, :count).by(10)
     end
   end
 end

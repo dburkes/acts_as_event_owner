@@ -2,6 +2,7 @@ require File.expand_path('../../spec_helper', __FILE__)
 
 describe ActsAsEventOwner::Core do
   before(:each) do
+    clean_database!
     @user = User.create :name => 'dude'
     @now = Time.now.utc
     @bod = Date.today.to_time.utc
@@ -16,7 +17,7 @@ describe ActsAsEventOwner::Core do
   
   it "adds event specifications to the host object" do
     lambda {
-      @user.event_specifications.create :description => 'walk the dog', :start_time => @now, :repeat => :daily, :frequency => 1
+      @user.event_specifications.create :description => 'walk the dog', :start_at => @now, :repeat => :daily, :frequency => 1
     }.should change(EventSpecification, :count).by(1)
     
     specs = @user.reload.event_specifications
@@ -24,8 +25,8 @@ describe ActsAsEventOwner::Core do
   end
   
   it "adds events to the host object" do
-    @user.event_specifications.create :description => 'walk the dog', :start_time => @now, :repeat => :daily, :frequency => 1
-    @user.event_specifications.create :description => 'go to the gym', :start_time => @now, :repeat => :daily, :frequency => 2
+    @user.event_specifications.create :description => 'walk the dog', :start_at => @now, :repeat => :daily, :frequency => 1, :generate => false
+    @user.event_specifications.create :description => 'go to the gym', :start_at => @now, :repeat => :daily, :frequency => 2, :generate => false
     
     lambda {
       @user.events.generate :from => @bod, :to => @bod + 1.week
@@ -33,7 +34,7 @@ describe ActsAsEventOwner::Core do
   end
   
   it "injects events into the association immediately" do
-    @user.event_specifications.create :description => 'walk the dog', :start_time => @now, :repeat => :daily, :frequency => 1
+    @user.event_specifications.create :description => 'walk the dog', :start_at => @now, :repeat => :daily, :frequency => 1, :generate => false
     @user.events.should be_empty
     @user.events.generate :from => @bod, :to => @bod + 1.week
     @user.events.should be_present

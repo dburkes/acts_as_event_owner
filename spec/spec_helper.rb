@@ -4,7 +4,7 @@ require 'pp'
 
 ActiveRecord::Base.establish_connection({
   :adapter => 'sqlite3',
-  :database => 'test.db'
+  :database => ':memory:'
 })
 # ActiveRecord::Base.logger = Logger.new(STDOUT)
 
@@ -24,5 +24,3 @@ def clean_database!
     ActiveRecord::Base.connection.execute "DELETE FROM #{model.table_name}"
   end
 end
-
-clean_database!
