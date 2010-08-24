@@ -12,13 +12,29 @@ h1. Installation
 
 h2. Rails 2.3.x
 
-ActsAsEventOwner is available both as a gem and as a plugin. To install as a plugin, just do
+ActsAsEventOwner is available both as a gem and as a plugin. 
+
+h3. Installing as a Rails 2.3.x plugin
+
+To install as a plugin, just do
 
 <pre>
   script/plugin install git://github.com/dburkes/acts_as_event_owner_.git
 </pre>
 
+You'll also need to install the @ri_cal@ gem by the method of your choice (bundler, system gems, etc).
+
+h3. Installing as a Rails 2.3.x gem
+
 To install as a gem, use your preferred method of gem installation, _e.g._ Bundler, @config.gem@, etc.
+
+If you want to use the acts_as_event_owner rake tasks, put the following line in your Rakefile:
+
+<pre>
+  Dir["#{Gem.searcher.find('acts_as_event_owner').full_gem_path}/**/tasks/*.rake"].each { |ext| load ext }
+</pre>
+
+h3. Rails 2.3.x post-installation steps
 
 After installation, generate a migration to add ActsAsEventOwner tables to your database:
 
@@ -26,8 +42,6 @@ After installation, generate a migration to add ActsAsEventOwner tables to your 
   script/generate acts_as_event_owner_migration
   rake db:migrate
 </pre>
-
-If you install as a plugin, be sure to install the @ri_cal@ gem by the method of your choice.
 
 h2. Rails 3.0
 
