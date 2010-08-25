@@ -69,7 +69,8 @@ h2. Usage
   @user = User.create :name => 'Alvin Seville'
   @user.event_specifications.create :description => 'acquire cheese balls', 
     :start_at => Date.today.to_time.utc, 
-    :repeat => :daily
+    :repeat => :daily,
+    :generate => false
   
   @user.events # => []
   
