@@ -76,8 +76,23 @@ h2. Usage
   
   @user.events.generate :from => Date.today.to_time.utc, :to => Date.today.to_time.utc + 1.week
   
+  # override the description on a per-generate basis
+  @user.events.generate :from => Date.today.to_time.utc, :to => Date.today.to_time.utc + 1.week, 
+    :attributes => { :description => 'acquire cheese balls, like, right away!' }
+  
   @user.events # => (7 ActsAsEventOwner::EventOccurrence objects)
 </pre>
+
+h2. Adding custom fields
+
+You can create your own migrations to add custom fields to the event objects- just make sure that you add the same 
+fields to both the @event_specifications@ and @event_occurrences@ tables.
+
+When you create an @EventSpecification@, set the value of your custom fields, then, later, when you call @generate@, the 
+values of those fields in the @EventSpecification@ will be copied over to any generated @EventOcurrence@ records.
+
+Just like you can do with the standard @:description@ attribute, you can override the default value of your custom fields 
+with the @:attributes@ parameter when you call @generate@.
 
 h2. Recurrence rules
 
