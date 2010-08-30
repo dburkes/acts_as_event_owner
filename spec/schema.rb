@@ -8,6 +8,9 @@ ActiveRecord::Schema.define(:version => 1) do
     t.string   "description"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "added_string"
+    t.boolean  "added_boolean"
+    t.datetime "added_datetime"
   end
   add_index "event_occurrences", ["event_specification_id"], :name => "index_event_occurrences_on_event_specification_id"
   add_index "event_occurrences", ["owner_id", "owner_type"], :name => "index_event_occurrences_on_owner_id_and_owner_type"
@@ -26,6 +29,9 @@ ActiveRecord::Schema.define(:version => 1) do
     t.datetime "until"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "added_string"
+    t.boolean  "added_boolean"
+    t.datetime "added_datetime"
   end
   add_index "event_specifications", ["owner_id", "owner_type"], :name => "index_event_specifications_on_owner_id_and_owner_type"
   
