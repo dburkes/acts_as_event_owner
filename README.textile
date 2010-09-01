@@ -28,14 +28,6 @@ h3. Installing as a Rails 2.3.x gem
 
 To install as a gem, use your preferred method of gem installation, _e.g._ Bundler, @config.gem@, etc.
 
-If you want to use the acts_as_event_owner rake tasks, put the following in your Rakefile:
-
-<pre>
-  if Gem.searcher.find('acts_as_event_owner')
-    Dir["#{Gem.searcher.find('acts_as_event_owner').full_gem_path}/**/tasks/*.rake"].each { |ext| load ext }
-  end
-</pre>
-
 h3. Rails 2.3.x post-installation steps
 
 After installation, generate a migration to add ActsAsEventOwner tables to your database:
@@ -45,7 +37,15 @@ After installation, generate a migration to add ActsAsEventOwner tables to your 
   rake db:migrate
 </pre>
 
-h2. Rails 3.0
+If you want to use the acts_as_event_owner rake tasks, put the following in your Rakefile:
+
+<pre>
+  if Gem.searcher.find('acts_as_event_owner')
+    Dir["#{Gem.searcher.find('acts_as_event_owner').full_gem_path}/**/tasks/*.rake"].each { |ext| load ext }
+  end
+</pre>
+
+h2. Rails 3
 
 Just add it to your Gemfile, like so:
 
@@ -57,6 +57,15 @@ Then do:
 
 <pre>
   bundle install
+  rails generate acts_as_event_owner:migration
+  rake db:migrate
+</pre>
+
+h3. Rails 3 post-installation steps
+
+After installation, generate a migration to add ActsAsEventOwner tables to your database:
+
+<pre>
   rails generate acts_as_event_owner:migration
   rake db:migrate
 </pre>
@@ -195,7 +204,7 @@ h3. On the second Thursday in May, every other year, until Dec 31, 2012
 h2. Using the Rake task
 
 A rake task is included to generate occurrences of recurring events.  For example, you might run this out of a cron job 
-each day to generate any recurrent events for the next 30 days, or whatever.
+each day to generate any recurring events for the next 30 days, or whatever.
 
 <pre>
   rake acts_as_event_owner:generate_events FROM=9/1/2010 TO=10/1/2010
