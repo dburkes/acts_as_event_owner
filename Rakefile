@@ -21,6 +21,7 @@ begin
     gemspec.homepage = "http://github.com/dburkes/acts_as_event_owner"
     gemspec.description = "Simple calendar events for any ActiveRecord model"
     gemspec.authors = ["Danny Burkes"]
+    gemspec.add_dependency('ri_cal')
   end
 rescue LoadError
   puts "Jeweler not available. Install it with: gem install jeweler"
