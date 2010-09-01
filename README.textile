@@ -57,8 +57,6 @@ Then do:
 
 <pre>
   bundle install
-  rails generate acts_as_event_owner:migration
-  rake db:migrate
 </pre>
 
 h3. Rails 3 post-installation steps
