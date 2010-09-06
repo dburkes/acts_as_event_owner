@@ -210,5 +210,5 @@ each day to generate any recurring events for the next 30 days, or whatever.
 
 h1. Credits
 
-ActsAsEventOwner was developed for Josh Pigford and Sabotage LLC (http://madebysabotage.com), for use in their excellent Critterly 
-product (http://critterly.com).  Big thanks to Josh and Sabotage for agreeing to make ActsAsEventOwner available by open source!
+ActsAsEventOwner was developed for Josh Pigford and "Sabotage LLC":http://madebysabotage.com, for use in their excellent "Critterly":http://critterly.com 
+product.  Big thanks to Josh and Sabotage for agreeing to make ActsAsEventOwner available by open source!
