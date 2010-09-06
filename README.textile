@@ -57,7 +57,7 @@ Then do:
 
 <pre>
   bundle install
-</pre>
+~</pre>
 
 h3. Rails 3 post-installation steps
 
@@ -68,7 +68,7 @@ After installation, generate a migration to add ActsAsEventOwner tables to your 
   rake db:migrate
 </pre>
 
-h2. Usage
+h1. Usage
 
 <pre>
   class User < ActiveRecord::Base
@@ -207,3 +207,8 @@ each day to generate any recurring events for the next 30 days, or whatever.
 <pre>
   rake acts_as_event_owner:generate_events FROM=9/1/2010 TO=10/1/2010
 </pre>
+
+h1. Credits
+
+ActsAsEventOwner was developed for Josh Pigford and Sabotage LLC (http://madebysabotage.com), for use in their excellent Critterly 
+product (http://critterly.com).  Big thanks to Josh and Sabotage for agreeing to make ActsAsEventOwner available by open source!
