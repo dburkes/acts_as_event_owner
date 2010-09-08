@@ -54,7 +54,7 @@ module ActsAsEventOwner
           end
       end
 
-      errors.add_to_base('Invalid recurrence specification') unless valid
+      errors.add(:base, 'Invalid recurrence specification') unless valid
     end
 
     def to_rrule
@@ -127,6 +127,10 @@ module ActsAsEventOwner
       self.all(:conditions => "until IS NULL OR until >= '#{Time.now.utc.to_s(:db)}'").each {|spec|
         spec.generate_events(options)
       }
+    end
+    
+    def repeat
+      self.attributes["repeat"].try(:to_sym)
     end
 
     protected
