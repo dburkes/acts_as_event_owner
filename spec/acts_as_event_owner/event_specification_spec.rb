@@ -22,17 +22,22 @@ describe ActsAsEventOwner::EventSpecification do
 
     it "defaults repeat until forever" do
       spec = new_event_specification(:repeat => :daily)
+      spec.should be_valid
       spec.until.should be_nil
     end
   end
 
   describe "validations" do
     it "requires a valid repeat interval" do
-      new_event_specification(:repeat => :bogus).should_not be_valid
+      spec = new_event_specification(:repeat => :bogus)
+      spec.should_not be_valid
+      spec.errors.on(:repeat).should be_present
     end
 
     it "requires a description" do
-      new_event_specification(:description => nil).should_not be_valid
+      spec = new_event_specification(:description => nil)
+      spec.should_not be_valid
+      spec.errors.on(:description).should be_present
     end
   end
 
@@ -53,10 +58,21 @@ describe ActsAsEventOwner::EventSpecification do
     end
 
     it "does not support invalid recurrence specifications" do
-      new_event_specification(:repeat => :daily, :frequency => 'foo').should_not be_valid
-      new_event_specification(:repeat => :daily, :on => [1, 2]).should_not be_valid
-      new_event_specification(:repeat => :daily, :on_the => :first).should_not be_valid
-      new_event_specification(:repeat => :daily, :on_the => :first, :target => :wkday).should_not be_valid
+      spec = new_event_specification(:repeat => :daily, :frequency => 'foo')
+      spec.should_not be_valid
+      spec.errors.on(:frequency).should be_present
+
+      spec = new_event_specification(:repeat => :daily, :on => [1, 2])
+      spec.should_not be_valid
+      spec.errors.on(:on).should be_present
+
+      spec = new_event_specification(:repeat => :daily, :on_the => :first)
+      spec.should_not be_valid
+      spec.errors.on(:on_the).should be_present
+
+      spec = new_event_specification(:repeat => :daily, :on_the => :first, :target => :wkday)
+      spec.should_not be_valid
+      spec.errors.on(:target).should be_present
     end
 
     it "defaults frequency to 1" do
@@ -81,9 +97,18 @@ describe ActsAsEventOwner::EventSpecification do
     end
 
     it "does not support invalid recurrence specifications" do
-      new_event_specification(:repeat => :weekly, :frequency => 'foo').should_not be_valid
-      new_event_specification(:repeat => :weekly, :on_the => :first, :target => :wkend).should_not be_valid
-      new_event_specification(:repeat => :weekly, :on => '2').should_not be_valid
+      spec = new_event_specification(:repeat => :weekly, :frequency => 'foo')
+      spec.should_not be_valid
+      spec.errors.on(:frequency).should be_present
+
+      spec = new_event_specification(:repeat => :weekly, :on_the => :first, :target => :wkend)
+      spec.should_not be_valid
+      spec.errors.on(:on_the).should be_present
+      spec.errors.on(:target).should be_present
+
+      spec = new_event_specification(:repeat => :weekly, :on => '2')
+      spec.should_not be_valid
+      spec.errors.on(:on).should be_present
     end
 
     it "generates an RRULE" do
@@ -110,12 +135,29 @@ describe ActsAsEventOwner::EventSpecification do
     end
 
     it "does not support invalid recurrence specification" do
-      new_event_specification(:repeat => :monthly, :frequency => 'foo').should_not be_valid
-      new_event_specification(:repeat => :monthly, :on => 2).should_not be_valid
-      new_event_specification(:repeat => :monthly, :on => [2], :on_the => :first, :target => :wkday).should_not be_valid
-      new_event_specification(:repeat => :monthly, :on_the => 2).should_not be_valid
-      new_event_specification(:repeat => :monthly, :on_the => :first, :target => :we).should_not be_valid
-      new_event_specification(:repeat => :monthly, :on_the => :first, :on => [2]).should_not be_valid
+      spec = new_event_specification(:repeat => :monthly, :frequency => 'foo')
+      spec.should_not be_valid
+      spec.errors.on(:frequency).should be_present
+
+      spec = new_event_specification(:repeat => :monthly, :on => 2)
+      spec.should_not be_valid
+      spec.errors.on(:on).should be_present
+
+      spec = new_event_specification(:repeat => :monthly, :on => [2], :on_the => :first, :target => :wkday)
+      spec.should_not be_valid
+      spec.errors.on(:on).should be_present
+
+      spec = new_event_specification(:repeat => :monthly, :on_the => 2)
+      spec.should_not be_valid
+      spec.errors.on(:on_the).should be_present
+
+      spec = new_event_specification(:repeat => :monthly, :on_the => :first, :target => :we)
+      spec.should_not be_valid
+      spec.errors.on(:target).should be_present
+
+      spec = new_event_specification(:repeat => :monthly, :on_the => :first, :on => [2])
+      spec.should_not be_valid
+      spec.errors.on(:on).should be_present
     end
 
     it "generates an RRULE" do
@@ -141,12 +183,29 @@ describe ActsAsEventOwner::EventSpecification do
     end
 
     it "does not support invalid recurrence rules" do
-      new_event_specification(:repeat => :yearly).should_not be_valid
-      new_event_specification(:repeat => :yearly, :frequency => 3).should_not be_valid
-      new_event_specification(:repeat => :yearly, :frequency => 'foo').should_not be_valid
-      new_event_specification(:repeat => :yearly, :on => 2).should_not be_valid
-      new_event_specification(:repeat => :yearly, :on => [2], :on_the => 'first').should_not be_valid
-      new_event_specification(:repeat => :yearly, :on => [2], :on_the => :first, :target => 2).should_not be_valid
+      spec = new_event_specification(:repeat => :yearly)
+      spec.should_not be_valid
+      spec.errors.on(:on).should be_present
+
+      spec = new_event_specification(:repeat => :yearly, :frequency => 3)
+      spec.should_not be_valid
+      spec.errors.on(:on).should be_present
+
+      spec = new_event_specification(:repeat => :yearly, :frequency => 'foo')
+      spec.should_not be_valid
+      spec.errors.on(:frequency).should be_present
+
+      spec = new_event_specification(:repeat => :yearly, :on => 2)
+      spec.should_not be_valid
+      spec.errors.on(:on).should be_present
+
+      spec = new_event_specification(:repeat => :yearly, :on => [2], :on_the => 'first')
+      spec.should_not be_valid
+      spec.errors.on(:on_the).should be_present
+
+      spec = new_event_specification(:repeat => :yearly, :on => [2], :on_the => :first, :target => 2)
+      spec.should_not be_valid
+      spec.errors.on(:target).should be_present
     end
 
     it "generates an RRULE" do

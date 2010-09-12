@@ -26,35 +26,32 @@ module ActsAsEventOwner
 
     def validate_recurrence_rules
       case self.repeat
-        when nil
-          valid = true
-
         when :daily
-          valid = self.on.nil? && self.on_the.nil? && self.target.nil?
+          [:on, :on_the, :target].each {|v| errors.add(v, :present) if self.send(v)}
 
         when :weekly
-          valid = (self.on.nil? || self.on.is_a?(Array)) && self.on_the.nil? && self.target.nil?
+          errors.add(:on, "must be an array") if self.on.present? && !self.on.is_a?(Array)
+          [:on_the, :target].each {|v| errors.add(v, :present) if self.send(v)}
 
         when :monthly
           if self.on_the
-            valid = self.target.present? && (self.target.is_a?(Array) || BYDAYS.keys.include?(self.target)) && self.on.nil?
+            errors.add(:target, "must be an array, :day, :wkday, or :wkend") if self.target.nil? || !(self.target.is_a?(Array) || BYDAYS.keys.include?(self.target))
+            errors.add(:on, :present) if self.on.present?
           elsif self.on
-            valid = self.on.is_a?(Array) && self.on_the.nil? && self.target.nil?
-          else
-            valid = true
+            errors.add(:on, "must be an array") if !self.on.is_a?(Array)
+            [:on_the, :target].each {|v| errors.add(v, :present) if self.send(v)}
           end
 
         when :yearly
           if self.on_the
-            valid = self.on.present? && self.on.is_a?(Array) && self.target.present? && (self.target.is_a?(Array) || BYDAYS.keys.include?(self.target))
+            errors.add(:on, "must be an array") if !self.on.present? || !self.on.is_a?(Array)
+            errors.add(:target, "must be an array, :day, :wkday, or :wkend") if self.target.nil? || !(self.target.is_a?(Array) || BYDAYS.keys.include?(self.target))
           elsif self.on
-            valid = self.on.is_a?(Array)
+            errors.add(:on, "must be an array") if !self.on.present? || !self.on.is_a?(Array)
           else
-            valid = false
+            errors.add(:on, :present)
           end
       end
-
-      errors.add(:base, 'Invalid recurrence specification') unless valid
     end
 
     def to_rrule
