@@ -53,7 +53,7 @@ Then do:
 
 <pre>
   bundle install
-~</pre>
+</pre>
 
 h3. Rails 3 post-installation steps
 
