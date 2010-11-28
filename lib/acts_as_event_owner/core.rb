@@ -3,7 +3,7 @@ module ActsAsEventOwner
     def self.included(base)
       base.send :extend, ClassMethods
     end
-  
+
     module ClassMethods
       def acts_as_event_owner options = {}
         include InstanceMethods
@@ -15,17 +15,25 @@ module ActsAsEventOwner
               proxy_owner.event_specifications.find(:all, :conditions => "until IS NULL OR until >= '#{Time.now.utc.to_s(:db)}'").each {|spec| spec.generate_events(options)}
               self.reload
             end
-            
+
             def <<(obj)
               raise ActsAsEventOwner::Exception.new("Do not add events directly- add event specifications, then call events.generate")
             end
-            
+
             def build(attributes={})
               raise ActsAsEventOwner::Exception.new("Do not build events directly- build event specifications, then call events.generate")
             end
-            
+
             def create(attributes={})
               raise ActsAsEventOwner::Exception.new("Do not create events directly- build event specifications, then call events.generate")
+            end
+
+            def upcoming
+              find(:all, :conditions => ["start_at >= ?", Time.now.utc])
+            end
+
+            def past
+              find(:all, :conditions => ["start_at < ?", Time.now.utc])
             end
           end
         end

@@ -1,6 +1,6 @@
 h1. ActsAsEventOwner
 
-ActsAsEventOwner is an ActiveRecord extension that adds calendar event management to any ActiveRecord model. Models that declare themselves as @acts_as_event_owner@ gain two @has_many@ associations- one for the event specifications, and one for the event occurrences.  
+ActsAsEventOwner is an ActiveRecord extension that adds calendar event management to any ActiveRecord model. Models that declare themselves as @acts_as_event_owner@ gain two @has_many@ associations- one for the event specifications, and one for the event occurrences.
 
 ActsAsEventOwner supports recurring events, with roughly the same recurrence rule capabilities as Apple's iCal application. Under the hood, ActsAsEventOwner uses "ri_cal":http://github.com/rubyredrick/ri_cal to provide recurring event support.
 
@@ -8,7 +8,7 @@ h1. Installation
 
 h2. Rails 2.3.x
 
-ActsAsEventOwner is available both as a gem and as a plugin. 
+ActsAsEventOwner is available both as a gem and as a plugin.
 
 h3. Installing as a Rails 2.3.x plugin
 
@@ -70,22 +70,25 @@ h1. Usage
   class User < ActiveRecord::Base
     acts_as_event_owner
   end
-  
+
   @user = User.create :name => 'Alvin Seville'
-  @user.event_specifications.create :description => 'acquire cheese balls', 
-    :start_at => Date.today.to_time.utc, 
+  @user.event_specifications.create :description => 'acquire cheese balls',
+    :start_at => Date.today.to_time.utc,
     :repeat => :daily,
     :generate => false
-  
+
   @user.events # => []
-  
+
   @user.events.generate :from => Date.today.to_time.utc, :to => Date.today.to_time.utc + 1.week
-  
+
   # override the description on a per-generate basis
-  @user.events.generate :from => Date.today.to_time.utc, :to => Date.today.to_time.utc + 1.week, 
+  @user.events.generate :from => Date.today.to_time.utc - 1.day, :to => Date.today.to_time.utc + 1.week,
     :attributes => { :description => 'acquire cheese balls, like, right away!' }
-  
-  @user.events # => (7 ActsAsEventOwner::EventOccurrence objects)
+
+  @user.events # => (8 ActsAsEventOwner::EventOccurrence objects)
+
+  @user.events.past # => (1 ActsAsEventOwner::EventOccurrence objects)
+  @user.events.upcoming #=> (7 ActsAsEventOwner::EventOccurrence objects)
 </pre>
 
 h2. Adding custom fields
@@ -103,92 +106,92 @@ ActsAsEventOwner supports recurrence rules roughly equivalent to those supported
 h3. One-time event
 
 <pre>
-  EventSpecification.create :description => 'pick up laundry', 
+  EventSpecification.create :description => 'pick up laundry',
     :start_at => Time.parse("4:00pm")
 </pre>
 
 h3. Every day
 
 <pre>
-  EventSpecification.create :description => 'eat breakfast', 
-    :start_at => Time.parse("7:30am"), 
+  EventSpecification.create :description => 'eat breakfast',
+    :start_at => Time.parse("7:30am"),
     :repeat => :daily
 </pre>
 
 h3. Every three days
 
 <pre>
-  EventSpecification.create :description => 'call mom', 
-    :start_at => Time.parse("10:30am"), 
-    :repeat => :daily, 
+  EventSpecification.create :description => 'call mom',
+    :start_at => Time.parse("10:30am"),
+    :repeat => :daily,
     :frequency => 3
 </pre>
 
 h3. On Monday, Wednesday, and Friday of each week
 
 <pre>
-  EventSpecification.create :description => 'go to the gym', 
-    :start_at => Time.parse("6:30am"), 
-    :repeat => :weekly, 
+  EventSpecification.create :description => 'go to the gym',
+    :start_at => Time.parse("6:30am"),
+    :repeat => :weekly,
     :on => [ :mo, :we, :fr ]
 </pre>
 
 h3. On Thursday, every other week
 
 <pre>
-  EventSpecification.create :description => 'clean the bathroom', 
-    :start_at => Time.parse("8:00pm"), 
-    :repeat => :weekly, 
+  EventSpecification.create :description => 'clean the bathroom',
+    :start_at => Time.parse("8:00pm"),
+    :repeat => :weekly,
     :frequency => 2, :on => [ :th ]
 </pre>
 
 h3. On the 10th and 25th of each month
 
 <pre>
-  EventSpecification.create :description => 'pick up paycheck', 
-    :start_at => Time.parse("9:30am"), 
-    :repeat => :monthly, 
+  EventSpecification.create :description => 'pick up paycheck',
+    :start_at => Time.parse("9:30am"),
+    :repeat => :monthly,
     :on => [ 10, 25 ]
 </pre>
 
 h3. On the last Saturday of each month
 
 <pre>
-  EventSpecification.create :description => 'run a marathon', 
-    :start_at => Time.parse("6:30am"), 
-    :repeat => :monthly, 
-    :on_the => :last, 
+  EventSpecification.create :description => 'run a marathon',
+    :start_at => Time.parse("6:30am"),
+    :repeat => :monthly,
+    :on_the => :last,
     :target => [ :sa ]
 </pre>
 
 h3. On the last weekday of each month
 
 <pre>
-  EventSpecification.create :description => 'wine tasting', 
-    :start_at => Time.parse("6:30pm"), 
-    :repeat => :monthly, 
-    :on_the => :last, 
+  EventSpecification.create :description => 'wine tasting',
+    :start_at => Time.parse("6:30pm"),
+    :repeat => :monthly,
+    :on_the => :last,
     :target => :wkday
 </pre>
 
 h3. Every April 15th
 
 <pre>
-  EventSpecification.create :description => 'pay taxes', 
-    :start_at => Time.parse("4/15/2010 5:00pm"), 
+  EventSpecification.create :description => 'pay taxes',
+    :start_at => Time.parse("4/15/2010 5:00pm"),
     :repeat => :yearly
 </pre>
 
 h3. On the second Thursday in May, every other year, until Dec 31, 2012
 
 <pre>
-  EventSpecification.create :description => 'freak out', 
-    :start_at => Time.now.utc, 
-    :repeat => :yearly, 
-    :frequency => 2, 
-    :on => [ 5 ], 
-    :on_the => :second, 
-    :target => [ :th ], 
+  EventSpecification.create :description => 'freak out',
+    :start_at => Time.now.utc,
+    :repeat => :yearly,
+    :frequency => 2,
+    :on => [ 5 ],
+    :on_the => :second,
+    :target => [ :th ],
     :until => Time.parse("12/31/2012")
 </pre>
 
