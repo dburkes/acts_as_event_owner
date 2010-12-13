@@ -3,7 +3,7 @@ require 'ri_cal'
 module ActsAsEventOwner
   class EventSpecification < ::ActiveRecord::Base
     belongs_to :owner, :polymorphic => true
-    has_many :event_occurrences, :dependent => :destroy
+    has_many :event_occurrences, :dependent => :destroy, :class_name => "::ActsAsEventOwner::EventOccurrence"
 
     serialize :repeat
     serialize :on
