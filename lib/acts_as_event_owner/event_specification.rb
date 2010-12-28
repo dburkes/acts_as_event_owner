@@ -116,7 +116,8 @@ module ActsAsEventOwner
 
         EventOccurrence.find_or_create_by_owner_id_and_owner_type_and_event_specification_id_and_start_at_and_end_at({
           :owner_id => self.owner_id, :owner_type => self.owner_type, :event_specification_id => self.id,
-          :start_at => occurrence.start_time, :end_at => occurrence.finish_time}.merge(additional_columns).merge(attribute_overrides.stringify_keys))
+          :description => occurrence.description, :start_at => occurrence.start_time,
+          :end_at => occurrence.finish_time}.merge(additional_columns).merge(attribute_overrides.stringify_keys))
       end
     end
 
@@ -125,7 +126,7 @@ module ActsAsEventOwner
         spec.generate_events(options)
       }
     end
-    
+
     def repeat
       self.attributes["repeat"].try(:to_sym)
     end

@@ -237,6 +237,11 @@ describe ActsAsEventOwner::EventSpecification do
         }.should change(EventOccurrence, :count).by(1)
       end
 
+      it "copies base columns from event_specifications to event occurences" do
+        @spec.generate_events
+        @spec.event_occurrences.first.description.should == @spec.description
+      end
+
       it "copies added columns from event_specifications to event_occurrences" do
         @spec.generate_events
         @spec.event_occurrences.first.added_string.should == @spec.added_string
