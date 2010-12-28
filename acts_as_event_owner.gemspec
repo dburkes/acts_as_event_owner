@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{acts_as_event_owner}
-  s.version = "1.1.1"
+  s.version = "1.1.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Danny Burkes"]
-  s.date = %q{2010-12-12}
+  s.date = %q{2010-12-27}
   s.description = %q{Simple calendar events for any ActiveRecord model}
   s.email = %q{dburkes@netable.com}
   s.extra_rdoc_files = [
