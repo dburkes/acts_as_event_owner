@@ -51,6 +51,45 @@ describe ActsAsEventOwner::EventSpecification do
     end
   end
 
+  describe "events recurring multiple times per day" do
+    it "passes validations" do
+      new_event_specification(:repeat => :by_hour, :target => [8, 12, 16]).should be_valid
+    end
+
+    it "defaults start_at to the first occurrence" do
+      now = Time.now
+      Time.stub!(:now).and_return(Time.utc(2011, 1, 15, 8, 23))
+      create_event_specification(:repeat => :by_hour, :target => [8, 12, 16], :generate => false).start_at.utc.should == Time.utc(2011, 1, 15, 12, 00)
+
+      Time.stub!(:now).and_return(Time.utc(2011, 1, 15, 23, 23))
+      create_event_specification(:repeat => :by_hour, :target => [8, 12, 16], :generate => false).start_at.utc.should == Time.utc(2011, 1, 16, 8, 00)
+    end
+
+    it "does not support invalid recurrence specifications" do
+      spec = new_event_specification(:repeat => :by_hour)
+      spec.should_not be_valid
+      spec.errors[:target].should be_present
+
+      spec = new_event_specification(:repeat => :by_hour, :on_the => :first)
+      spec.should_not be_valid
+      spec.errors[:on_the].should be_present
+
+      spec = new_event_specification(:repeat => :by_hour, :on => [1,2])
+      spec.should_not be_valid
+      spec.errors[:on].should be_present
+
+      spec = new_event_specification(:repeat => :by_hour, :target => 8)
+      spec.should_not be_valid
+      spec.errors[:target].should be_present
+    end
+
+    it "generates an RRULE" do
+      # every day at 08:00, 12:00, and 16:00
+      new_event_specification(:repeat => :by_hour, :target => [8,12,16]).to_rrule.should == "FREQ=DAILY;BYHOUR=8,12,16"
+    end
+
+  end
+
   describe "events recurring daily" do
     it "passes validations" do
       new_event_specification(:repeat => :daily).should be_valid

@@ -110,6 +110,15 @@ h3. One-time event
     :start_at => Time.parse("4:00pm")
 </pre>
 
+h3. Every day at 08:00, 13:00, and 18:00
+
+<pre>
+  EventSpecification.create :description => 'walk the dog',
+    :start_at => Time.parse("8:00am"),
+    :repeat => :per_hour,
+    :target => [8,13,18]
+</pre>
+
 h3. Every day
 
 <pre>

@@ -15,17 +15,22 @@ module ActsAsEventOwner
 
     before_validation :set_defaults
     validates_presence_of :description
-    validates_inclusion_of :repeat, :in => [:daily,:weekly,:monthly,:yearly], :allow_nil => true
+    validates_inclusion_of :repeat, :in => [:by_hour,:daily,:weekly,:monthly,:yearly], :allow_nil => true
     validates_inclusion_of :on_the, :in => ON_THE.keys, :allow_nil => true
     validates_numericality_of :frequency, :allow_nil => true
     validates_presence_of :start_at
     validate :validate_recurrence_rules
+    after_validation :set_defaults_after_validation
 
     attr_accessor :generate
     after_create :auto_generate_events
 
     def validate_recurrence_rules
       case self.repeat
+        when :by_hour
+          errors.add(:target, "must be an array") if !self.target.present? || !self.target.is_a?(Array)
+          [:on, :on_the].each {|v| errors.add(v, :present) if self.send(v)}
+
         when :daily
           [:on, :on_the, :target].each {|v| errors.add(v, :present) if self.send(v)}
 
@@ -58,8 +63,15 @@ module ActsAsEventOwner
       return nil if !self.valid? || self.repeat.nil?
 
       components = []
+      repeat = self.repeat
+      frequency = self.frequency
 
       case self.repeat
+        when :by_hour
+          repeat = "DAILY"
+          components << "BYHOUR=#{self.target.join(',')}"
+          frequency = nil
+
         when :daily
 
         when :weekly
@@ -77,8 +89,8 @@ module ActsAsEventOwner
           components << "BYSETPOS=#{ON_THE[self.on_the]};BYDAY=#{byday}" if self.on_the
       end
 
-      components.unshift "INTERVAL=#{self.frequency}" if self.frequency
-      components.unshift "FREQ=#{self.repeat.to_s.upcase}"
+      components.unshift "INTERVAL=#{frequency}" if frequency
+      components.unshift "FREQ=#{repeat.to_s.upcase}"
       components << "UNTIL=#{self.until.strftime("%Y%m%dT%H%M%SZ")}" if self.until
       components.join(';')
     end
@@ -137,6 +149,19 @@ module ActsAsEventOwner
       self.start_at ||= Time.now.utc
       self.end_at ||= self.start_at + 1.hour
       self.generate = { :from => self.start_at, :to => self.start_at + 30.days } if self.generate.nil?
+    end
+
+    def set_defaults_after_validation
+      if self.errors.empty? && self.repeat == :by_hour
+        current_start_hour = self.start_at.hour
+        closest_repeat_hour = self.target.detect {|h| h > current_start_hour}
+        if closest_repeat_hour
+          self.start_at = Time.utc(self.start_at.year, self.start_at.month, self.start_at.day, closest_repeat_hour)
+        else
+          tomorrow = self.start_at + 24.hours
+          self.start_at = Time.utc(tomorrow.year, tomorrow.month, tomorrow.day, self.target.first)
+        end
+      end
     end
 
     def byday
