@@ -73,16 +73,16 @@ h1. Usage
 
   @user = User.create :name => 'Alvin Seville'
   @user.event_specifications.create :description => 'acquire cheese balls',
-    :start_at => Date.today.to_time.utc,
+    :start_at => Date.today.to_time,
     :repeat => :daily,
     :generate => false
 
   @user.events # => []
 
-  @user.events.generate :from => Date.today.to_time.utc, :to => Date.today.to_time.utc + 1.week
+  @user.events.generate :from => Date.today.to_time, :to => Date.today.to_time + 1.week
 
   # override the description on a per-generate basis
-  @user.events.generate :from => Date.today.to_time.utc - 1.day, :to => Date.today.to_time.utc + 1.week,
+  @user.events.generate :from => Date.today.to_time - 1.day, :to => Date.today.to_time + 1.week,
     :attributes => { :description => 'acquire cheese balls, like, right away!' }
 
   @user.events # => (8 ActsAsEventOwner::EventOccurrence objects)
@@ -195,7 +195,7 @@ h3. On the second Thursday in May, every other year, until Dec 31, 2012
 
 <pre>
   EventSpecification.create :description => 'freak out',
-    :start_at => Time.now.utc,
+    :start_at => Time.zone.now,
     :repeat => :yearly,
     :frequency => 2,
     :on => [ 5 ],

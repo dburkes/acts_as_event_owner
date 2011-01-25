@@ -91,7 +91,7 @@ module ActsAsEventOwner
 
       components.unshift "INTERVAL=#{frequency}" if frequency
       components.unshift "FREQ=#{repeat.to_s.upcase}"
-      components << "UNTIL=#{self.until.strftime("%Y%m%dT%H%M%SZ")}" if self.until
+      components << "UNTIL=#{self.until.strftime("%Y%m%dT%H%M%S")}" if self.until
       components.join(';')
     end
 
@@ -106,18 +106,22 @@ module ActsAsEventOwner
       opts[:from] = opts[:to] = nil if opts[:count]
       attribute_overrides = opts[:attributes] || {}
 
-      # puts "generate #{self.attributes.inspect} from #{opts[:from]} to #{opts[:to]}, extended_attributes = #{extended_attributes.inspect}"
+      # puts "generate #{self.attributes.inspect} from #{opts[:from]} to #{opts[:to]} with #{attribute_overrides.inspect}"
 
+      start_at = self.start_at
+      end_at = self.end_at
       cal = RiCal.Calendar do |cal|
         cal.event do |event|
           event.description self.description
-          event.dtstart(self.start_at) if self.start_at
-          event.dtend(self.end_at) if self.end_at
+          event.dtstart(start_at) if start_at
+          event.dtend(end_at) if end_at
           event.rrule = self.to_rrule if self.to_rrule
         end
       end
       event = cal.events.first
+      # puts "event is #{event.inspect}"
       occurrences = event.occurrences(:starting => opts[:from], :before => opts[:to], :count => opts[:count])
+      # puts "got #{occurrences.length} occurrences"
       occurrences.collect do |occurrence|
         @@OCCURRENCE_COLUMNS ||= (EventOccurrence.columns.collect(&:name) - EXCLUDED_COLUMNS)
         @@SPECIFICATION_COLUMNS ||= (EventSpecification.columns.collect(&:name) - EXCLUDED_COLUMNS)
@@ -125,16 +129,21 @@ module ActsAsEventOwner
           additional[column] = self.attributes[column] if @@OCCURRENCE_COLUMNS.include?(column)
           additional
         end
-
-        EventOccurrence.find_or_create_by_owner_id_and_owner_type_and_event_specification_id_and_start_at_and_end_at({
+        
+        # puts "*********** #{occurrence.start_time} : #{occurrence.start_time.zone}"
+        # puts "*********** #{Time.zone.at(occurrence.start_time.to_i)}"
+        
+        hash = {
           :owner_id => self.owner_id, :owner_type => self.owner_type, :event_specification_id => self.id,
-          :description => occurrence.description, :start_at => occurrence.start_time,
-          :end_at => occurrence.finish_time}.merge(additional_columns).merge(attribute_overrides.stringify_keys))
+          :description => occurrence.description, :start_at => occurrence.start_time.utc,
+          :end_at => occurrence.finish_time.utc}.stringify_keys.merge(additional_columns).merge(attribute_overrides.stringify_keys)
+          
+        EventOccurrence.find_or_create_by_owner_id_and_owner_type_and_event_specification_id_and_start_at_and_end_at(hash)
       end
     end
 
     def self.generate_events options={}
-      self.all(:conditions => "until IS NULL OR until >= '#{Time.now.utc.to_s(:db)}'").each {|spec|
+      self.all(:conditions => "until IS NULL OR until >= '#{Time.zone.now.to_s(:db)}'").each {|spec|
         spec.generate_events(options)
       }
     end
@@ -146,7 +155,7 @@ module ActsAsEventOwner
     protected
 
     def set_defaults
-      self.start_at ||= Time.now.utc
+      self.start_at ||= Time.zone.now
       self.end_at ||= self.start_at + 1.hour
       self.generate = { :from => self.start_at, :to => self.start_at + 30.days } if self.generate.nil?
     end
@@ -156,10 +165,10 @@ module ActsAsEventOwner
         current_start_hour = self.start_at.hour
         closest_repeat_hour = self.target.detect {|h| h > current_start_hour}
         if closest_repeat_hour
-          self.start_at = Time.utc(self.start_at.year, self.start_at.month, self.start_at.day, closest_repeat_hour)
+          self.start_at = Time.local(self.start_at.year, self.start_at.month, self.start_at.day, closest_repeat_hour)
         else
           tomorrow = self.start_at + 24.hours
-          self.start_at = Time.utc(tomorrow.year, tomorrow.month, tomorrow.day, self.target.first)
+          self.start_at = Time.local(tomorrow.year, tomorrow.month, tomorrow.day, self.target.first)
         end
       end
     end

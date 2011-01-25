@@ -3,11 +3,12 @@ require File.expand_path('../../spec_helper', __FILE__)
 describe ActsAsEventOwner::EventSpecification do
   before(:each) do
     clean_database!
+    Time.zone = 'US/Pacific'
   end
 
   describe "defaults" do
     it "defaults start_at to now" do
-      now = Time.now
+      now = Time.zone.now
       Time.stub!(:now).and_return(now)
       spec = new_event_specification
       spec.should be_valid
@@ -57,12 +58,12 @@ describe ActsAsEventOwner::EventSpecification do
     end
 
     it "defaults start_at to the first occurrence" do
-      now = Time.now
-      Time.stub!(:now).and_return(Time.utc(2011, 1, 15, 8, 23))
-      create_event_specification(:repeat => :by_hour, :target => [8, 12, 16], :generate => false).start_at.utc.should == Time.utc(2011, 1, 15, 12, 00)
+      now = Time.zone.now
+      Time.stub!(:now).and_return(Time.local(2011, 1, 15, 8, 23))
+      create_event_specification(:repeat => :by_hour, :target => [8, 12, 16], :generate => false).start_at.should == Time.local(2011, 1, 15, 12, 00)
 
-      Time.stub!(:now).and_return(Time.utc(2011, 1, 15, 23, 23))
-      create_event_specification(:repeat => :by_hour, :target => [8, 12, 16], :generate => false).start_at.utc.should == Time.utc(2011, 1, 16, 8, 00)
+      Time.stub!(:now).and_return(Time.local(2011, 1, 15, 23, 23))
+      create_event_specification(:repeat => :by_hour, :target => [8, 12, 16], :generate => false).start_at.should == Time.local(2011, 1, 16, 8, 00)
     end
 
     it "does not support invalid recurrence specifications" do
@@ -160,7 +161,7 @@ describe ActsAsEventOwner::EventSpecification do
       # every other monday, wednesday, and friday
       new_event_specification(:repeat => :weekly, :frequency => 2, :on => [:mo, :we, :fr]).to_rrule.should == "FREQ=WEEKLY;INTERVAL=2;BYDAY=MO,WE,FR"
       # every other monday, wednesday, and friday, until 12/31/2010
-      new_event_specification(:repeat => :weekly, :frequency => 2, :on => [:mo, :we, :fr], :until => Time.parse("12/31/2010")).to_rrule.should == "FREQ=WEEKLY;INTERVAL=2;BYDAY=MO,WE,FR;UNTIL=20101231T000000Z"
+      new_event_specification(:repeat => :weekly, :frequency => 2, :on => [:mo, :we, :fr], :until => Time.parse("12/31/2010")).to_rrule.should == "FREQ=WEEKLY;INTERVAL=2;BYDAY=MO,WE,FR;UNTIL=20101231T000000"
     end
   end
 
@@ -209,7 +210,7 @@ describe ActsAsEventOwner::EventSpecification do
       # every other month, on the third weekday of the month
       new_event_specification(:repeat => :monthly, :frequency => 2, :on_the => :third, :target => :wkday).to_rrule.should == "FREQ=MONTHLY;INTERVAL=2;BYSETPOS=3;BYDAY=MO,TU,WE,TH,FR"
       # every other month, on the third monday and third wednesday, until 12/31/2010
-      new_event_specification(:repeat => :monthly, :frequency => 2, :on_the => :third, :target => [:mo, :we], :until => Time.parse("12/31/2010")).to_rrule.should == "FREQ=MONTHLY;INTERVAL=2;BYSETPOS=3;BYDAY=MO,WE;UNTIL=20101231T000000Z"
+      new_event_specification(:repeat => :monthly, :frequency => 2, :on_the => :third, :target => [:mo, :we], :until => Time.parse("12/31/2010")).to_rrule.should == "FREQ=MONTHLY;INTERVAL=2;BYSETPOS=3;BYDAY=MO,WE;UNTIL=20101231T000000"
     end
   end
 
@@ -255,19 +256,19 @@ describe ActsAsEventOwner::EventSpecification do
       # every year, on the first weekend day in january and july
       new_event_specification(:repeat => :yearly, :on => [1,7], :on_the => :first, :target => :wkend).to_rrule.should == "FREQ=YEARLY;INTERVAL=1;BYMONTH=1,7;BYSETPOS=1;BYDAY=SU,SA"
       # every other year, on the first weekday in january and july, until 12/31/2010
-      new_event_specification(:repeat => :yearly, :frequency => 2, :on => [1,7], :on_the => :first, :target => :wkday, :until => Time.parse("12/31/2010")).to_rrule.should == "FREQ=YEARLY;INTERVAL=2;BYMONTH=1,7;BYSETPOS=1;BYDAY=MO,TU,WE,TH,FR;UNTIL=20101231T000000Z"
+      new_event_specification(:repeat => :yearly, :frequency => 2, :on => [1,7], :on_the => :first, :target => :wkday, :until => Time.parse("12/31/2010")).to_rrule.should == "FREQ=YEARLY;INTERVAL=2;BYMONTH=1,7;BYSETPOS=1;BYDAY=MO,TU,WE,TH,FR;UNTIL=20101231T000000"
     end
   end
 
   describe "#generate_events" do
     before(:each) do
-      @now = Time.now.utc
-      @bod = Date.today.to_time.utc
+      @now = Time.zone.now
+      @bod = Date.today.to_time
     end
 
     describe "non-recurring events" do
       before(:each) do
-        @spec = create_event_specification :start_at => @now, :added_string => 'foo', :added_boolean => true, :added_datetime => Date.yesterday.to_time, :generate => false
+        @spec = create_event_specification :start_at => @now, :added_string => 'foo', :added_boolean => true, :added_datetime => Date.yesterday.to_time.in_time_zone, :generate => false
       end
 
       it "generates a single event" do
@@ -361,8 +362,8 @@ describe ActsAsEventOwner::EventSpecification do
 
   describe "autogeneration" do
     before(:each) do
-      @now = Time.now.utc
-      @bod = Date.today.to_time.utc
+      @now = Time.zone.now
+      @bod = Date.today.to_time
     end
 
     def create_daily_event(generate=nil)
@@ -394,8 +395,8 @@ describe ActsAsEventOwner::EventSpecification do
 
   describe "self.generate_events" do
     before(:each) do
-      @now = Time.now.utc
-      @bod = Date.today.to_time.utc
+      @now = Time.zone.now
+      @bod = Date.today.to_time
       @walking_the_dog = create_event_specification :description => 'walk the dog', :start_at => @now, :repeat => :daily, :frequency => 1, :generate => false
       @taking_out_the_trash = create_event_specification :description => 'take out the trash', :start_at => @now, :repeat => :daily, :frequency => 3, :generate => false
     end
@@ -404,6 +405,52 @@ describe ActsAsEventOwner::EventSpecification do
       lambda {
         ActsAsEventOwner::EventSpecification.generate_events :from => @bod, :to => @bod + 1.week
       }.should change(EventOccurrence, :count).by(10)
+    end
+  end
+
+  describe "timezone support" do
+    context "repeating events" do
+      context "with UTC times" do
+        before do
+          Time.zone = 'UTC'
+        end
+        
+        it "generates the occurrences properly" do
+          @now = Time.zone.local(2011, 1, 16, 23, 00)  # sunday
+          spec = create_event_specification :description => "mwf event", :start_at => @now, :repeat => :weekly, :on => [:mo, :we, :fr]
+          occurrence = spec.event_occurrences[1]
+          occurrence.start_at.utc.wday.should == 1
+          occurrence.start_at.utc.hour.should == 23
+        end
+      end
+      
+      context "with local times" do
+        before(:each) do
+          Time.zone = 'US/Pacific'
+        end
+        
+        it "generates the occurrences properly" do
+          @now = Time.zone.local(2011, 1, 16, 23, 00)  # sunday
+          spec = create_event_specification :description => "mwf event", :start_at => @now, :repeat => :weekly, :on => [:mo, :we, :fr]
+          occurrence = spec.event_occurrences[1].reload
+          # puts "*************** #{occurrence.start_at}"
+          # puts "*************** #{occurrence.start_at.zone}"
+          occurrence.start_at.localtime.wday.should == 1
+          occurrence.start_at.localtime.hour.should == 23
+        end
+      end
+      
+      context "with conflicting time zones" do
+        it "generates events with erroneous start_at values" do
+          Time.zone = 'US/Pacific'
+          @now = Time.zone.local(2011, 1, 16, 23, 00)  # sunday
+          spec = create_event_specification :description => "mwf event", :start_at => @now, :repeat => :weekly, :on => [:mo, :we, :fr], :generate => false
+          Time.zone = 'US/Eastern'
+          spec.generate_events
+          occurrence = spec.event_occurrences[1]
+          occurrence.start_at.hour.should_not == 23
+        end
+      end
     end
   end
 end

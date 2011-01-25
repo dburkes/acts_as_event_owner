@@ -4,8 +4,9 @@ describe ActsAsEventOwner::Core do
   before(:each) do
     clean_database!
     @user = User.create :name => 'dude'
-    @now = Time.now.utc
-    @bod = Date.today.to_time.utc
+    Time.zone = 'US/Pacific'
+    @now = Time.zone.now
+    @bod = Date.today.to_time.in_time_zone
   end
 
   it "adds associations to the host object" do

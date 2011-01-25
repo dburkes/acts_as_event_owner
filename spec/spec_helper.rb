@@ -1,6 +1,9 @@
 require 'rubygems'
 require 'active_record'
+require 'active_support/time_with_zone'
 require 'pp'
+
+ActiveRecord::Base.default_timezone = :utc
 
 ActiveRecord::Base.establish_connection({
   :adapter => 'sqlite3',
