@@ -2,6 +2,7 @@ require 'ri_cal'
 
 module ActsAsEventOwner
   class EventSpecification < ::ActiveRecord::Base
+    unloadable
     belongs_to :owner, :polymorphic => true
     has_many :event_occurrences, :dependent => :destroy, :class_name => "::ActsAsEventOwner::EventOccurrence"
 
