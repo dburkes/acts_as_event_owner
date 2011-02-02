@@ -9,7 +9,7 @@ ActiveRecord::Base.establish_connection({
   :adapter => 'sqlite3',
   :database => ':memory:'
 })
-# ActiveRecord::Base.logger = Logger.new(STDOUT)
+# ActiveRecord::Base.logger = Logger.new(File.open("test.log", "w"))
 
 require File.expand_path('../../lib/acts_as_event_owner', __FILE__)
 include ActsAsEventOwner

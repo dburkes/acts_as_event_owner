@@ -417,8 +417,8 @@ describe ActsAsEventOwner::EventSpecification do
           @now = Time.zone.local(2011, 1, 16, 23, 00)  # sunday
           spec = create_event_specification :description => "mwf event", :start_at => @now, :repeat => :weekly, :on => [:mo, :we, :fr]
           occurrence = spec.event_occurrences[1]
-          occurrence.start_at.utc.wday.should == 1
-          occurrence.start_at.utc.hour.should == 23
+          occurrence.start_at.in_time_zone.wday.should == 1
+          occurrence.start_at.in_time_zone.hour.should == 23
         end
       end
       
@@ -433,8 +433,8 @@ describe ActsAsEventOwner::EventSpecification do
           occurrence = spec.event_occurrences[1].reload
           # puts "*************** #{occurrence.start_at}"
           # puts "*************** #{occurrence.start_at.zone}"
-          occurrence.start_at.localtime.wday.should == 1
-          occurrence.start_at.localtime.hour.should == 23
+          occurrence.start_at.in_time_zone.wday.should == 1
+          occurrence.start_at.in_time_zone.hour.should == 23
         end
       end
       
