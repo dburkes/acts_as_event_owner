@@ -216,6 +216,8 @@ describe ActsAsEventOwner::EventSpecification do
 
   describe "events recurring yearly" do
     it "passes validations" do
+      new_event_specification(:repeat => :yearly).should be_valid
+      new_event_specification(:repeat => :yearly, :frequency => 3).should be_valid
       new_event_specification(:repeat => :yearly, :on => [1,7]).should be_valid
       new_event_specification(:repeat => :yearly, :frequency => 2, :on => [1,7]).should be_valid
       new_event_specification(:repeat => :yearly, :on => [1,7], :on_the => :first, :target => :wkend).should be_valid
@@ -223,14 +225,6 @@ describe ActsAsEventOwner::EventSpecification do
     end
 
     it "does not support invalid recurrence rules" do
-      spec = new_event_specification(:repeat => :yearly)
-      spec.should_not be_valid
-      spec.errors[:on].should be_present
-
-      spec = new_event_specification(:repeat => :yearly, :frequency => 3)
-      spec.should_not be_valid
-      spec.errors[:on].should be_present
-
       spec = new_event_specification(:repeat => :yearly, :frequency => 'foo')
       spec.should_not be_valid
       spec.errors[:frequency].should be_present
@@ -249,6 +243,10 @@ describe ActsAsEventOwner::EventSpecification do
     end
 
     it "generates an RRULE" do
+      # every year
+      new_event_specification(:repeat => :yearly).to_rrule.should == "FREQ=YEARLY;INTERVAL=1"
+      # every third year
+      new_event_specification(:repeat => :yearly, :frequency => 3).to_rrule.should == "FREQ=YEARLY;INTERVAL=3"
       # every year in january and july
       new_event_specification(:repeat => :yearly, :on => [1,7]).to_rrule.should == "FREQ=YEARLY;INTERVAL=1;BYMONTH=1,7"
       # every other year, in january and july

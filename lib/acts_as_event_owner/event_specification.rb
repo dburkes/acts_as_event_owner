@@ -54,8 +54,6 @@ module ActsAsEventOwner
             errors.add(:target, "must be an array, :day, :wkday, or :wkend") if self.target.nil? || !(self.target.is_a?(Array) || BYDAYS.keys.include?(self.target))
           elsif self.on
             errors.add(:on, "must be an array") if !self.on.present? || !self.on.is_a?(Array)
-          else
-            errors.add(:on, :present)
           end
       end
     end
