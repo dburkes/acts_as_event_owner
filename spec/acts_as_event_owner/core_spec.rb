@@ -4,7 +4,7 @@ describe ActsAsEventOwner::Core do
   before(:each) do
     clean_database!
     @user = User.create :name => 'dude'
-    Time.zone = 'US/Pacific'
+    Time.zone = 'Eastern Time (US & Canada)'
     @now = Time.zone.now
     @bod = Date.today.to_time.in_time_zone
   end

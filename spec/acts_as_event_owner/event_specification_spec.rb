@@ -3,7 +3,7 @@ require File.expand_path('../../spec_helper', __FILE__)
 describe ActsAsEventOwner::EventSpecification do
   before(:each) do
     clean_database!
-    Time.zone = 'US/Pacific'
+    Time.zone = 'Eastern Time (US & Canada)'
   end
 
   describe "defaults" do
@@ -424,7 +424,7 @@ describe ActsAsEventOwner::EventSpecification do
       
       context "with local times" do
         before(:each) do
-          Time.zone = 'US/Pacific'
+          Time.zone = 'Pacific Time (US & Canada)'
         end
         
         it "generates the occurrences properly" do
@@ -440,10 +440,10 @@ describe ActsAsEventOwner::EventSpecification do
       
       context "with conflicting time zones" do
         it "generates events with erroneous start_at values" do
-          Time.zone = 'US/Pacific'
+          Time.zone = 'Pacific Time (US & Canada)'
           @now = Time.zone.local(2011, 1, 16, 23, 00)  # sunday
           spec = create_event_specification :description => "mwf event", :start_at => @now, :repeat => :weekly, :on => [:mo, :we, :fr], :generate => false
-          Time.zone = 'US/Eastern'
+          Time.zone = 'Easter Time (US & Canada)'
           spec.generate_events
           occurrence = spec.event_occurrences[1]
           occurrence.start_at.hour.should_not == 23
