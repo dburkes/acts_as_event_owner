@@ -443,7 +443,7 @@ describe ActsAsEventOwner::EventSpecification do
           Time.zone = 'Pacific Time (US & Canada)'
           @now = Time.zone.local(2011, 1, 16, 23, 00)  # sunday
           spec = create_event_specification :description => "mwf event", :start_at => @now, :repeat => :weekly, :on => [:mo, :we, :fr], :generate => false
-          Time.zone = 'Easter Time (US & Canada)'
+          Time.zone = 'Eastern Time (US & Canada)'
           spec.generate_events
           occurrence = spec.event_occurrences[1]
           occurrence.start_at.hour.should_not == 23

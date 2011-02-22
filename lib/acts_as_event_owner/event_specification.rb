@@ -112,8 +112,8 @@ module ActsAsEventOwner
       cal = RiCal.Calendar do |cal|
         cal.event do |event|
           event.description self.description
-          event.dtstart(start_at) if start_at
-          event.dtend(end_at) if end_at
+          event.dtstart(start_at.in_time_zone) if start_at
+          event.dtend(end_at.in_time_zone) if end_at
           event.rrule = self.to_rrule if self.to_rrule
         end
       end
@@ -146,7 +146,7 @@ module ActsAsEventOwner
         spec.generate_events(options)
       }
     end
-
+    
     def repeat
       self.attributes["repeat"].try(:to_sym)
     end
